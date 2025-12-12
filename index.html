@@ -1,0 +1,2633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sidey - CMS for Dynamic Creative Portfolios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Import map for THREE.js modules -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
+    
+    <style>
+        :root {
+            --bg-primary: #000;
+            --bg-secondary: #111;
+            --text-primary: #fff;
+            --text-secondary: #999;
+            --text-muted: #666;
+            --border-color: rgba(255,255,255,0.1);
+            --card-bg: #1a1a1a;
+            --shadow: rgba(0,0,0,0.3);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #fff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #000;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --border-color: rgba(0,0,0,0.1);
+            --card-bg: #fff;
+            --shadow: rgba(0,0,0,0.1);
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Inter', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding-top: 80px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: var(--bg-primary);
+            padding: 10px 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s;
+        }
+        .nav-logo {
+            height: 40px;
+            width: auto;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .nav-logo path {
+            fill: #FFD700;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: auto;
+            align-items: center;
+        }
+        .nav-search {
+            width: 280px;
+            padding: 10px 16px 10px 40px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transition: border-color 0.3s, width 0.3s;
+        }
+        .nav-search:focus {
+            outline: none;
+            border-color: #FFD700;
+            width: 350px;
+        }
+        .nav-search::placeholder {
+            color: var(--text-secondary);
+        }
+        .search-container {
+            position: relative;
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            padding: 4px;
+            border-radius: 20px;
+            cursor: pointer;
+            width: 56px;
+            height: 28px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .theme-toggle:hover {
+            border-color: #FFD700;
+        }
+        .theme-switch {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #FFD700;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        [data-theme="light"] .theme-switch {
+            transform: translateX(28px);
+        }
+        .btn {
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 10px 28px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        .btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Hero Section */
+        .btn.outline {
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+        }
+        .btn.outline:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+        .hero .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .cta-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 16px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+        .cta-primary:hover {
+            transform: translateY(-2px);
+        }
+        .cta-secondary {
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 16px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+        .cta-secondary:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        /* Templates Section */
+        .templates-section {
+            background: var(--bg-secondary);
+            padding: 80px 20px;
+            transition: background 0.3s;
+        }
+        .templates-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 60px;
+        }
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .template-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px var(--shadow);
+            transition: transform 0.3s;
+            border: 1px solid var(--border-color);
+        }
+        .template-card:hover {
+            transform: translateY(-4px);
+        }
+        .template-preview {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .template-preview.robcine {
+            background: linear-gradient(135deg, #000 0%, #333 100%);
+        }
+        .template-preview.sanaa {
+            background: linear-gradient(135deg, #f5f5f5 0%, #fff 100%);
+            color: #000;
+        }
+        .template-info {
+            padding: 24px;
+        }
+        .template-info h3 {
+            font-size: 1.8rem;
+            margin: 0 0 12px 0;
+            color: var(--text-primary);
+        }
+        .template-info p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .template-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .tag {
+            background: var(--bg-secondary);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Library Section */
+        .library-section {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+        .gallery-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+            padding: 20px;
+        }
+        .add-collection-btn {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.2s;
+            display: none;
+        }
+        .add-collection-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .add-collection-btn.visible {
+            display: inline-block;
+        }
+        .pro-button {
+            background: linear-gradient(135deg, #00d4ff, #00a8cc);
+            color: #fff;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+        .pro-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .pro-features {
+            font-size: 0.85rem;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-auto-rows: 250px;
+            gap: 16px;
+            margin-top: 40px;
+        }
+        .content-card {
+            position: relative;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border-color);
+        }
+        .content-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--shadow);
+            z-index: 10;
+        }
+        /* Aspect ratio classes */
+        .content-card.square {
+            grid-row: span 1;
+            grid-column: span 1;
+        }
+        .content-card.wide {
+            grid-row: span 1;
+            grid-column: span 2;
+        }
+        .content-card.tall {
+            grid-row: span 2;
+            grid-column: span 1;
+        }
+        .content-card.large {
+            grid-row: span 2;
+            grid-column: span 2;
+        }
+        .content-media {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .model-viewer-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .model-viewer-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .content-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            padding: 16px;
+            color: white;
+        }
+        .content-username {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .content-software {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        .content-loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        .content-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive adjustments for 16:9 content */
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: auto;
+            }
+            .content-card.wide {
+                grid-column: span 1;
+                grid-row: span 1;
+                aspect-ratio: 16 / 9;
+            }
+            .content-card.wide .content-media {
+                height: 100%;
+                width: 100%;
+            }
+            .content-card.square,
+            .content-card.tall {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+        }
+
+        /* Search box styles */
+        #search-box:focus {
+            outline: none;
+            border-color: var(--text-primary);
+        }
+
+        /* Collection Detail View */
+        #collection-view {
+            display: none;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        #collection-view.active {
+            display: block;
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 32px;
+            transition: all 0.3s;
+        }
+        .back-button:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+        .collection-detail-container {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+        .collection-detail-gallery {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .collection-detail-media {
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: transform 0.2s;
+            min-height: 300px;
+        }
+        .collection-detail-media:hover {
+            transform: scale(1.02);
+        }
+        .collection-detail-media img,
+        .collection-detail-media video,
+        .collection-detail-media .model-viewer-container {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .collection-detail-media .model-viewer-container {
+            min-height: 400px;
+        }
+        .collection-detail-sidebar {
+            width: 400px;
+            flex-shrink: 0;
+        }
+        .collection-detail-header {
+            margin-bottom: 32px;
+        }
+        .collection-detail-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            color: var(--text-primary);
+        }
+        .collection-detail-creator {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .collection-detail-creator a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .collection-detail-creator a:hover {
+            text-decoration: underline;
+        }
+        .collection-detail-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .collection-detail-tag {
+            background: var(--bg-secondary);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .collection-detail-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Comments Section */
+        .comments-section {
+            margin-top: 32px;
+        }
+        .comments-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        .comment-form {
+            margin-bottom: 24px;
+        }
+        .comment-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 12px;
+        }
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: var(--text-primary);
+        }
+        .comment-form button {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+        .comment-form button:hover {
+            opacity: 0.8;
+        }
+        .comment-form button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .comment {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .comment-author {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .comment-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .comment-text {
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 4000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            position: relative;
+        }
+        .lightbox-content img,
+        .lightbox-content video {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 8px;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .lightbox-close:hover {
+            background: #fff;
+            color: #000;
+        }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .lightbox-nav:hover {
+            background: #fff;
+            color: #000;
+        }
+        .lightbox-prev {
+            left: -70px;
+        }
+        .lightbox-next {
+            right: -70px;
+        }
+        
+        @media (max-width: 1200px) {
+            .collection-detail-container {
+                flex-direction: column;
+            }
+            .collection-detail-sidebar {
+                width: 100%;
+            }
+        }
+
+        /* For slightly wider screens but still can't fit two 16:9 side by side */
+        @media (min-width: 769px) and (max-width: 1100px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: auto;
+            }
+            .content-card.wide {
+                grid-column: span 1;
+                grid-row: span 1;
+                aspect-ratio: 16 / 9;
+            }
+            .content-card.wide .content-media {
+                height: 100%;
+                width: 100%;
+            }
+        }
+
+        /* Features Section */
+        .features-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+        .feature-card {
+            text-align: center;
+            padding: 32px 24px;
+        }
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            background: #000;
+            color: #fff;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .pricing-section .section-title {
+            color: #fff;
+        }
+        .pricing-section .section-subtitle {
+            color: #ccc;
+        }
+        .price-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 400px;
+            margin: 40px auto;
+        }
+        .price {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .period {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 32px;
+        }
+        .price-features {
+            text-align: left;
+            margin-bottom: 32px;
+        }
+        .price-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #222;
+        }
+        .price-cta {
+            background: #fff;
+            color: #000;
+            padding: 16px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .price-cta:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .templates-grid {
+                grid-template-columns: 1fr;
+            }
+            .cta-buttons {
+                flex-direction: column;
+            }
+            .navbar {
+                padding: 10px;
+            }
+            .nav-buttons {
+                gap: 5px;
+            }
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Auth Modals */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-modal.active {
+            display: flex;
+        }
+        .auth-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 450px;
+            padding: 48px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        .auth-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+        .auth-close:hover {
+            color: var(--text-primary);
+        }
+        .auth-logo {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        .auth-form-group {
+            margin-bottom: 20px;
+        }
+        .auth-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        .auth-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .auth-form-group input:focus {
+            outline: none;
+            border-color: var(--text-primary);
+        }
+        .auth-btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 8px;
+        }
+        .auth-btn-primary:hover {
+            background: #333;
+        }
+        .auth-btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .auth-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .auth-message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        .auth-message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        .auth-links {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .auth-links a {
+            color: #000;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Pro Modal Styles */
+        .pro-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .pro-modal.active {
+            display: flex;
+        }
+        .pro-modal-content {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            padding: 48px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            color: #000;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.4);
+            position: relative;
+        }
+        .pro-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: #000;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        .pro-modal-close:hover {
+            opacity: 1;
+        }
+        .pro-modal h2 {
+            font-size: 2.5rem;
+            margin: 0 0 16px 0;
+        }
+        .pro-modal-price {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 24px 0;
+        }
+        .pro-modal-features {
+            text-align: left;
+            margin: 32px 0;
+        }
+        .pro-modal-features ul {
+            list-style: none;
+            padding: 0;
+        }
+        .pro-modal-features li {
+            padding: 12px 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pro-modal-features li::before {
+            content: "✓";
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .pro-modal-btn {
+            background: #000;
+            color: #FFD700;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 24px;
+        }
+        .pro-modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        .nav-pro-btn {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.2s;
+            font-size: 0.95rem;
+        }
+        .nav-pro-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Profile View */
+        #profile-view {
+            display: none;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        #profile-view.active {
+            display: block;
+        }
+        .profile-container {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        .profile-collections {
+            flex: 1;
+            min-width: 0;
+        }
+        .profile-sidebar {
+            width: 400px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 100px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+        }
+        .profile-header {
+            margin-bottom: 32px;
+        }
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+        .profile-username {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pro-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+        .profile-about {
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            white-space: pre-wrap;
+        }
+        .profile-social {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .profile-social a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .profile-social a:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-primary);
+        }
+        .profile-social img, .profile-social svg {
+            width: 24px;
+            height: 24px;
+        }
+        .profile-resume-btn {
+            display: inline-block;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: opacity 0.3s;
+            margin-bottom: 12px;
+        }
+        .profile-resume-btn:hover {
+            opacity: 0.8;
+        }
+        .profile-portfolio-btn {
+            display: inline-block;
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .profile-portfolio-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+        .profile-collections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        @media (max-width: 1024px) {
+            .profile-container {
+                flex-direction: column;
+            }
+            .profile-sidebar {
+                width: 100%;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <svg class="nav-logo" onclick="showCollectionGrid()" viewBox="0 0 3078 920" alt="Sidey">
+            <defs>
+                <linearGradient id="g1" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(436.64,0,0,398.01,61.07,217.855)">
+                    <stop offset="0" stop-color="#ffe400"/>
+                    <stop offset="1" stop-color="#ffe000"/>
+                </linearGradient>
+                <linearGradient id="g2" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(590.57,0,0,200.89,75.48,450.975)">
+                    <stop offset="0" stop-color="#ffe400"/>
+                    <stop offset="1" stop-color="#ffe000"/>
+                </linearGradient>
+                <linearGradient id="g3" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(434.46,0,0,400.39,259.78,678.505)">
+                    <stop offset="0" stop-color="#ffe400"/>
+                    <stop offset="1" stop-color="#ffe000"/>
+                </linearGradient>
+                <linearGradient id="g4" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-490.254,-397,344.558,-425.493,2129.127,658)">
+                    <stop offset="0" stop-color="#ffe300"/>
+                    <stop offset=".01" stop-color="#ffe300"/>
+                    <stop offset="1" stop-color="#ffe100"/>
+                </linearGradient>
+            </defs>
+            <path fill-rule="evenodd" fill="url(#g1)" d="m497.71 18.85l-59.07 185.42-377.57 212.59 62.12-187.15z"/>
+            <path fill-rule="evenodd" fill="url(#g2)" d="m666.05 459.11l-171.32 92.31-419.25-109.45 174.72-91.44z"/>
+            <path fill-rule="evenodd" fill="url(#g3)" d="m694.24 478.31l-58.05 185.75-376.41 214.64 61.11-187.49z"/>
+            <path fill="url(#g4)" d="m1145.4 280.6v80.8q-31.4-14.1-61.3-21.2-29.9-7.2-56.4-7.2-35.3 0-52.1 9.7-16.9 9.7-16.9 30.1 0 15.4 11.2 24.1 11.5 8.4 41.4 14.5l41.9 8.4q63.6 12.8 90.4 38.9 26.9 26 26.9 74.1 0 63-37.6 94-37.3 30.6-114.2 30.6-36.2 0-72.8-6.9-36.5-6.9-73-20.4v-83q36.5 19.4 70.5 29.3 34.2 9.7 65.9 9.7 32.2 0 49.3-10.7 17.1-10.7 17.1-30.6 0-17.9-11.8-27.6-11.5-9.7-46.2-17.4l-38.1-8.4q-57.2-12.3-83.7-39.1-26.4-26.8-26.4-72.3 0-57 36.8-87.6 36.8-30.7 105.8-30.7 31.4 0 64.6 4.9 33.2 4.6 68.7 14zm190.6 369.4v-381.4h98.4v381.4zm408.6-307h-35.3v232.7h35.3q60.2 0 91.9-29.9 32-29.9 32-86.9 0-56.7-31.7-86.3-31.7-29.6-92.2-29.6zm-133.6 307v-381.4h103.7q86.8 0 129.2 12.5 42.7 12.3 73.1 41.9 26.8 25.8 39.8 59.6 13.1 33.7 13.1 76.3 0 43.2-13.1 77.2-13 33.7-39.8 59.5-30.7 29.6-73.6 42.1-42.9 12.3-128.7 12.3zm514 0v-381.4h265.4v74.4h-167.1v71h157.1v74.3h-157.1v87.4h172.7v74.3zm530.2-160.7l-145.3-220.7h107.5l86.9 135.9 86.8-135.9h107.8l-145.3 220.7v160.7h-98.4z"/>
+        </svg>
+        <div class="nav-buttons">
+            <div class="search-container">
+                <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                </svg>
+                <input 
+                    type="text" 
+                    id="nav-search-box" 
+                    class="nav-search"
+                    placeholder="Search"
+                    onkeyup="handleNavSearch()"
+                />
+            </div>
+            <button class="nav-pro-btn" onclick="openProModal()">Upgrade to Pro</button>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                <div class="theme-switch"></div>
+            </button>
+            <a href="#" class="btn" onclick="openSignupModal(); return false;">Sign Up</a>
+            <a href="#" class="btn" onclick="openSigninModal(); return false;">Sign In</a>
+        </div>
+    </nav>
+    
+    <!-- Pro Modal -->
+    <div id="pro-modal" class="pro-modal">
+        <div class="pro-modal-content">
+            <button class="pro-modal-close" onclick="closeProModal()">×</button>
+            <h2>Upgrade to Pro</h2>
+            <div class="pro-modal-price">$5<span style="font-size: 1.5rem;">/month</span></div>
+            <div class="pro-modal-features">
+                <ul>
+                    <li>Appear first in search results</li>
+                    <li>High quality video uploads</li>
+                    <li>High resolution images</li>
+                    <li>Pro badge on your profile</li>
+                    <li>Remove Sidey branding from your site</li>
+                </ul>
+            </div>
+            <button class="pro-modal-btn" onclick="upgradeToPro()">Subscribe Now</button>
+        </div>
+    </div>
+    
+    <!-- Sign Up Modal -->
+    <div id="signup-modal" class="auth-modal">
+        <div class="auth-container">
+            <button class="auth-close" onclick="closeSignupModal()">×</button>
+            <div class="auth-logo">Sign Up</div>
+            <p class="auth-subtitle">Create your account</p>
+            
+            <div id="signup-message"></div>
+            
+            <form id="signup-form">
+                <div class="auth-form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="signup-sitename">Site Name (your URL)</label>
+                    <input type="text" id="signup-sitename" placeholder="yourname" required>
+                </div>
+                <button type="submit" class="auth-btn-primary">Create Account</button>
+            </form>
+            
+            <div class="auth-links">
+                Already have an account? <a href="#" onclick="closeSignupModal(); openSigninModal(); return false;">Sign In</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sign In Modal -->
+    <div id="signin-modal" class="auth-modal">
+        <div class="auth-container">
+            <button class="auth-close" onclick="closeSigninModal()">×</button>
+            <div class="auth-logo">Sign In</div>
+            <p class="auth-subtitle">Welcome back</p>
+            
+            <div id="signin-message"></div>
+            
+            <form id="signin-form">
+                <div class="auth-form-group">
+                    <label for="signin-email">Email</label>
+                    <input type="email" id="signin-email" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="signin-password">Password</label>
+                    <input type="password" id="signin-password" required>
+                </div>
+                <button type="submit" class="auth-btn-primary">Sign In</button>
+            </form>
+            
+            <div class="auth-links">
+                Don't have an account? <a href="#" onclick="closeSigninModal(); openSignupModal(); return false;">Sign Up</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Library Section -->
+    <section id="library" class="library-section">
+        <!-- Collection Grid View -->
+        <div id="collection-grid-view">
+            <div id="content-loading" class="content-loading">
+                <p>Loading content...</p>
+            </div>
+            
+            <div id="content-empty" class="content-empty" style="display: none;">
+                <p>No content yet. Be the first to share!</p>
+                <a href="signup.html" class="btn" style="margin-top: 20px; display: inline-block;">Get Started</a>
+            </div>
+            
+            <div id="content-grid" class="content-grid"></div>
+            
+            <div class="gallery-actions">
+                <button id="add-collection-btn" class="add-collection-btn" onclick="window.location.href='admin.html'">
+                    + New Collection
+                </button>
+            </div>
+        </div>
+        
+        <!-- Collection Detail View -->
+        <div id="collection-view">
+            <button class="back-button" onclick="showCollectionGrid()">← Back to Gallery</button>
+            
+            <div class="collection-detail-container">
+                <div class="collection-detail-gallery" id="detail-gallery"></div>
+                
+                <div class="collection-detail-sidebar">
+                    <div class="collection-detail-header">
+                        <h1 class="collection-detail-title" id="detail-title">Collection Title</h1>
+                        <div class="collection-detail-creator">
+                            by <a href="#" id="detail-creator" target="_blank">Creator</a>
+                        </div>
+                        <div class="collection-detail-tags" id="detail-tags"></div>
+                        <p class="collection-detail-description" id="detail-description"></p>
+                    </div>
+                    
+                    <div class="comments-section">
+                        <h3 class="comments-title">Comments</h3>
+                        <div class="comment-form" id="comment-form-container" style="display: none;">
+                            <textarea id="comment-text" placeholder="Add a comment..."></textarea>
+                            <button onclick="submitComment()">Post Comment</button>
+                        </div>
+                        <div id="comments-auth-message" style="color: var(--text-secondary); margin-bottom: 16px;">
+                            <a href="#" onclick="openSigninModal(); return false;" style="color: #667eea;">Sign in</a> to comment
+                        </div>
+                        <div class="comments-list" id="comments-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Profile View -->
+    <div id="profile-view">
+        <button class="back-button" onclick="showCollectionGrid()">← Back to Gallery</button>
+        
+        <div class="profile-container">
+            <div class="profile-collections">
+                <div id="profile-loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Loading profile...</p>
+                </div>
+                
+                <div id="profile-empty" class="empty-state" style="display: none;">
+                    <h2>No collections yet</h2>
+                    <p>This user hasn't shared any collections.</p>
+                </div>
+                
+                <div id="profile-collections-grid" class="profile-collections-grid"></div>
+            </div>
+            
+            <div class="profile-sidebar">
+                <div class="profile-header">
+                    <h1 class="profile-name" id="profile-name">Loading...</h1>
+                    <div class="profile-username" id="profile-username">@username</div>
+                </div>
+                
+                <div class="profile-about" id="profile-about">
+                    Loading profile information...
+                </div>
+                
+                <div class="profile-social" id="profile-social"></div>
+                
+                <div id="profile-resume-container"></div>
+                
+                <a href="#" id="profile-portfolio-link" class="profile-portfolio-btn" target="_blank" style="display: none;">
+                    🌐 View Portfolio Site
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <button class="lightbox-close" onclick="closeLightbox()">×</button>
+            <button class="lightbox-nav lightbox-prev" onclick="showPrevMedia()">‹</button>
+            <img id="lightbox-img" src="" alt="" style="display: none;">
+            <video id="lightbox-video" controls style="display: none;">
+                <source id="lightbox-video-source" src="" type="">
+            </video>
+            <div id="lightbox-model" class="model-viewer-container" style="display: none; width: 80vw; height: 80vh;"></div>
+            <button class="lightbox-nav lightbox-next" onclick="showNextMedia()">›</button>
+        </div>
+    </div>
+
+    <!-- Templates Section -->
+    <section id="templates" class="templates-section" style="display: none;">
+        <div class="templates-container">
+            <h2 class="section-title">Choose Your Template</h2>
+            <p class="section-subtitle">Start with a professionally designed template and make it your own</p>
+            
+            <div class="templates-grid">
+                <!-- Robcine Template -->
+                <div class="template-card">
+                    <div class="template-preview robcine">ROBCINE</div>
+                    <div class="template-info">
+                        <h3>Robcine</h3>
+                        <p>A dark, cinematic portfolio perfect for cinematographers and videographers. Features a bold gallery layout with integrated blog.</p>
+                        <div class="template-tags">
+                            <span class="tag">Dark Theme</span>
+                            <span class="tag">Gallery Focused</span>
+                            <span class="tag">Blog Integrated</span>
+                        </div>
+                        <a href="signup.html?template=robcine" class="btn">Use This Template</a>
+                    </div>
+                </div>
+
+                <!-- Sanaa Template -->
+                <div class="template-card">
+                    <div class="template-preview sanaa">SANAA</div>
+                    <div class="template-info">
+                        <h3>Sanaa</h3>
+                        <p>A clean, minimal design ideal for animators and 3D artists. Includes 3D model viewer and elegant project showcases.</p>
+                        <div class="template-tags">
+                            <span class="tag">Light Theme</span>
+                            <span class="tag">3D Ready</span>
+                            <span class="tag">Minimal Design</span>
+                        </div>
+                        <a href="signup.html?template=sanaa" class="btn">Use This Template</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <script src="js/cloudflare-config.js"></script>
+    <script>
+        // Modal functions
+        function openProModal() {
+            document.getElementById('pro-modal').classList.add('active');
+        }
+        
+        function closeProModal() {
+            document.getElementById('pro-modal').classList.remove('active');
+        }
+        
+        function openSignupModal() {
+            document.getElementById('signup-modal').classList.add('active');
+        }
+        
+        function closeSignupModal() {
+            document.getElementById('signup-modal').classList.remove('active');
+            document.getElementById('signup-form').reset();
+            document.getElementById('signup-message').innerHTML = '';
+        }
+        
+        function openSigninModal() {
+            document.getElementById('signin-modal').classList.add('active');
+        }
+        
+        function closeSigninModal() {
+            document.getElementById('signin-modal').classList.remove('active');
+            document.getElementById('signin-form').reset();
+            document.getElementById('signin-message').innerHTML = '';
+        }
+        
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeProModal();
+                closeSignupModal();
+                closeSigninModal();
+            }
+        });
+        
+        // Close modal on background click
+        document.getElementById('signup-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'signup-modal') closeSignupModal();
+        });
+        
+        document.getElementById('signin-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'signin-modal') closeSigninModal();
+        });
+        
+        // Upgrade user to Pro
+        async function upgradeToPro() {
+            const user = await window.auth.getCurrentUser();
+            
+            if (!user) {
+                alert('Please sign in to upgrade to Pro');
+                closeProModal();
+                openSigninModal();
+                return;
+            }
+            
+            try {
+                // Update user document with Pro status
+                await window.db.update('users', user.id, {
+                    isPro: true,
+                    proUpgradedAt: new Date().toISOString()
+                });
+                
+                // Get user's site name
+                const userData = await window.db.get('users', user.id);
+                const siteName = userData.siteName;
+                
+                closeProModal();
+                alert('Congratulations! You\'re now a Pro user!');
+                
+                // Show their profile page
+                showProfile(siteName);
+            } catch (error) {
+                console.error('Error upgrading to Pro:', error);
+                alert('Failed to upgrade. Please try again.');
+            }
+        }
+        
+        // Listen for auth state changes to show/hide add collection button
+        async function checkAuthForAddBtn() {
+            const user = await window.auth.getCurrentUser();
+            const addBtn = document.getElementById('add-collection-btn');
+            if (user && addBtn) {
+                addBtn.classList.add('visible');
+            } else if (addBtn) {
+                addBtn.classList.remove('visible');
+            }
+        }
+        checkAuthForAddBtn();
+        
+        // Handle Sign Up
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const siteName = document.getElementById('signup-sitename').value.toLowerCase().trim();
+            const messageDiv = document.getElementById('signup-message');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            // Validate site name
+            if (!/^[a-z0-9-]+$/.test(siteName)) {
+                messageDiv.innerHTML = '<div class="auth-message error">Site name can only contain lowercase letters, numbers, and hyphens</div>';
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+            messageDiv.innerHTML = '';
+            
+            try {
+                // Create user (the API will check if site name is taken)
+                const result = await window.auth.signUp(email, password, siteName);
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                messageDiv.innerHTML = '<div class="auth-message success">Account created! Redirecting...</div>';
+                
+                setTimeout(() => {
+                    window.location.href = `dashboard.html?siteName=${siteName}`;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                messageDiv.innerHTML = `<div class="auth-message error">${error.message}</div>`;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account';
+            }
+        });
+        
+        // Handle Sign In
+        document.getElementById('signin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            const messageDiv = document.getElementById('signin-message');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Signing In...';
+            messageDiv.innerHTML = '';
+            
+            try {
+                const result = await window.auth.signIn(email, password);
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                // Get user's site name
+                const userData = await window.db.get('users', result.user.id);
+                const siteName = userData?.siteName;
+                
+                if (siteName) {
+                    window.location.href = `dashboard.html?siteName=${siteName}`;
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+                
+            } catch (error) {
+                console.error('Signin error:', error);
+                messageDiv.innerHTML = `<div class="auth-message error">${error.message}</div>`;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign In';
+            }
+        });
+        
+        // Load all user content
+        const loadingDiv = document.getElementById('content-loading');
+        const emptyDiv = document.getElementById('content-empty');
+        const gridDiv = document.getElementById('content-grid');
+        
+        // Store all collections for filtering
+        let allCollections = [];
+        
+        // Create collection card element
+        function createCollectionCard(collection) {
+            if (!collection.mediaUrls || collection.mediaUrls.length === 0) {
+                return null;
+            }
+            
+            const thumbnailUrl = collection.mediaUrls[0];
+            const isVideo = thumbnailUrl.match(/\.(mp4|webm|mov)(\?|$)/i);
+            const is3DModel = thumbnailUrl.match(/\.glb(\?|$)/i);
+            
+            console.log('Creating card for:', thumbnailUrl, 'is3DModel:', is3DModel);
+            
+            const card = document.createElement('div');
+            card.className = 'content-card';
+            card.style.cursor = 'pointer';
+            card.onclick = () => showCollectionDetail(collection);
+            
+            if (is3DModel) {
+                card.innerHTML = `
+                    <div class="content-media model-viewer-container"></div>
+                    <div class="content-overlay">
+                        <div class="content-username">${collection.displayName || collection.username || 'Unknown'}</div>
+                        <div class="content-software">${collection.title || 'Untitled'}</div>
+                    </div>
+                `;
+                const container = card.querySelector('.model-viewer-container');
+                card.classList.add('square'); // Default to square for 3D models
+                init3DModelCard(container, thumbnailUrl);
+            } else if (isVideo) {
+                card.innerHTML = `
+                    <video class="content-media" src="${thumbnailUrl}" muted loop playsinline></video>
+                    <div class="content-overlay">
+                        <div class="content-username">${collection.displayName || collection.username || 'Unknown'}</div>
+                        <div class="content-software">${collection.title || 'Untitled'}</div>
+                    </div>
+                `;
+                const video = card.querySelector('video');
+                
+                video.addEventListener('loadedmetadata', () => {
+                    const aspectRatio = video.videoWidth / video.videoHeight;
+                    if (aspectRatio > 1.5) {
+                        card.classList.add('wide');
+                    } else if (aspectRatio < 0.7) {
+                        card.classList.add('tall');
+                    } else {
+                        card.classList.add('square');
+                    }
+                    if (video.duration && isFinite(video.duration)) {
+                        video.currentTime = video.duration / 2;
+                    }
+                });
+                
+                card.addEventListener('mouseenter', () => {
+                    video.play();
+                });
+                card.addEventListener('mouseleave', () => {
+                    video.pause();
+                    if (video.duration && isFinite(video.duration)) {
+                        video.currentTime = video.duration / 2;
+                    }
+                });
+            } else {
+                card.innerHTML = `
+                    <img class="content-media" src="${thumbnailUrl}" alt="${collection.title || 'Collection'}">
+                    <div class="content-overlay">
+                        <div class="content-username">${collection.displayName || collection.username || 'Unknown'}</div>
+                        <div class="content-software">${collection.title || 'Untitled'}</div>
+                    </div>
+                `;
+                const img = card.querySelector('img');
+                
+                img.addEventListener('load', () => {
+                    const aspectRatio = img.naturalWidth / img.naturalHeight;
+                    if (aspectRatio > 1.5) {
+                        card.classList.add('wide');
+                    } else if (aspectRatio < 0.7) {
+                        card.classList.add('tall');
+                    } else {
+                        card.classList.add('square');
+                    }
+                });
+            }
+            
+            return card;
+        }
+        
+        // Initialize 3D model viewer for collection cards
+        async function init3DModelCard(container, modelUrl, mode = 'gallery') {
+            console.log('init3DModelCard called with:', modelUrl, 'mode:', mode);
+            const THREE = await import('three');
+            const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+            
+            // Get theme colors
+            const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const bgColor = theme === 'light' ? 0xffffff : 0x000000;
+            
+            // Create scene
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(bgColor);
+            
+            // Create camera
+            const camera = new THREE.PerspectiveCamera(45, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Create renderer
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            // Load model
+            const loader = new GLTFLoader();
+            
+            let model = null;
+            let isRotating = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            
+            try {
+                const gltf = await new Promise((resolve, reject) => {
+                    loader.load(
+                        modelUrl,
+                        resolve,
+                        (progress) => {
+                            console.log('Loading model:', (progress.loaded / progress.total * 100).toFixed(2) + '%');
+                        },
+                        (error) => {
+                            console.error('Error loading model:', error);
+                            reject(error);
+                        }
+                    );
+                });
+                
+                model = gltf.scene;
+                
+                // Scale and center model
+                const box = new THREE.Box3().setFromObject(model);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                
+                const scale = 37.5;
+                model.scale.set(scale, scale, scale);
+                
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+                model.position.sub(center.multiplyScalar(scale));
+                model.position.y -= size.y * scale * 0.5;
+                
+                // Make model fully white
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material = new THREE.MeshStandardMaterial({
+                            color: 0xffffff,
+                            roughness: 0.5,
+                            metalness: 0.1
+                        });
+                    }
+                });
+                
+                scene.add(model);
+                
+                // Setup animations if available
+                let mixer = null;
+                if (gltf.animations && gltf.animations.length > 0) {
+                    mixer = new THREE.AnimationMixer(model);
+                    gltf.animations.forEach((clip) => {
+                        const action = mixer.clipAction(clip);
+                        action.play();
+                    });
+                }
+                
+                // Store mixer for animation updates
+                model.userData.mixer = mixer;
+            } catch (error) {
+                console.error('Error loading 3D model:', error);
+                return;
+            }
+            
+            // Mouse controls - different behavior for gallery vs detail view
+            if (mode === 'detail') {
+                // Detail view: click and drag to rotate
+                container.addEventListener('mousedown', (e) => {
+                    isRotating = true;
+                    previousMousePosition = { x: e.clientX, y: e.clientY };
+                });
+                
+                container.addEventListener('mousemove', (e) => {
+                    if (isRotating && model) {
+                        const deltaX = e.clientX - previousMousePosition.x;
+                        const deltaY = e.clientY - previousMousePosition.y;
+                        
+                        model.rotation.y += deltaX * 0.01;
+                        model.rotation.x += deltaY * 0.01;
+                        
+                        previousMousePosition = { x: e.clientX, y: e.clientY };
+                    }
+                });
+                
+                container.addEventListener('mouseup', () => {
+                    isRotating = false;
+                });
+                
+                container.addEventListener('mouseleave', () => {
+                    isRotating = false;
+                });
+            } else {
+                // Gallery view: hover to rotate
+                let isHovering = false;
+                
+                container.addEventListener('mouseenter', () => {
+                    isHovering = true;
+                    // Resume animations on hover
+                    if (model && model.userData.mixer) {
+                        model.userData.mixer.timeScale = 1;
+                    }
+                });
+                
+                container.addEventListener('mouseleave', () => {
+                    isHovering = false;
+                    // Pause animations when not hovering
+                    if (model && model.userData.mixer) {
+                        model.userData.mixer.timeScale = 0;
+                    }
+                });
+                
+                container.addEventListener('mousemove', (e) => {
+                    if (model) {
+                        const rect = container.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / rect.width;
+                        const y = (e.clientY - rect.top) / rect.height;
+                        
+                        model.rotation.y = (x - 0.5) * Math.PI * 2;
+                        model.rotation.x = (y - 0.5) * Math.PI * 0.5;
+                    }
+                });
+                
+                // Store hover state for animation control
+                model.userData.isHovering = () => isHovering;
+            }
+            
+            // Animation loop
+            const clock = new THREE.Clock();
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                const delta = clock.getDelta();
+                if (model && model.userData.mixer) {
+                    // Only update animation if in detail mode or hovering in gallery mode
+                    if (mode === 'detail' || (mode === 'gallery' && model.userData.isHovering && model.userData.isHovering())) {
+                        model.userData.mixer.update(delta);
+                    }
+                }
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            const resizeObserver = new ResizeObserver(() => {
+                const width = container.offsetWidth;
+                const height = container.offsetHeight;
+                
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+            });
+            
+            resizeObserver.observe(container);
+        }
+        
+        function displayCollections(collections) {
+            gridDiv.innerHTML = '';
+            
+            if (collections.length === 0) {
+                emptyDiv.style.display = 'block';
+                return;
+            }
+            
+            emptyDiv.style.display = 'none';
+            
+            collections.forEach(collection => {
+                const card = createCollectionCard(collection);
+                if (card) {
+                    gridDiv.appendChild(card);
+                }
+            });
+        }
+        
+        function filterContent() {
+            const searchTerm = document.getElementById('nav-search-box').value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                displayCollections(allCollections);
+                return;
+            }
+            
+            const filtered = allCollections.filter(collection => {
+                // Search in username
+                const username = (collection.username || '').toLowerCase();
+                if (username.includes(searchTerm)) return true;
+                
+                // Search in title
+                const title = (collection.title || '').toLowerCase();
+                if (title.includes(searchTerm)) return true;
+                
+                // Search in description
+                const description = (collection.description || '').toLowerCase();
+                if (description.includes(searchTerm)) return true;
+                
+                // Search in software tags
+                if (collection.software && Array.isArray(collection.software)) {
+                    const softwareMatch = collection.software.some(tag => 
+                        tag.toLowerCase().includes(searchTerm)
+                    );
+                    if (softwareMatch) return true;
+                }
+                
+                // Search in equipment tags
+                if (collection.equipment && Array.isArray(collection.equipment)) {
+                    const equipmentMatch = collection.equipment.some(tag => 
+                        tag.toLowerCase().includes(searchTerm)
+                    );
+                    if (equipmentMatch) return true;
+                }
+                
+                return false;
+            });
+            
+            // Sort filtered results with Pro users first
+            const sortedFiltered = filtered.sort((a, b) => {
+                if (a.isPro && !b.isPro) return -1;
+                if (!a.isPro && b.isPro) return 1;
+                
+                const timeA = new Date(a.createdAt || 0).getTime();
+                const timeB = new Date(b.createdAt || 0).getTime();
+                return timeB - timeA;
+            });
+            
+            displayCollections(sortedFiltered);
+        }
+        
+        function handleNavSearch() {
+            // If on collection detail view, go back to grid first
+            if (document.getElementById('collection-view').classList.contains('active')) {
+                showCollectionGrid();
+            }
+            // Then filter
+            filterContent();
+        }
+        
+        // View Navigation Functions
+        let currentCollection = null;
+        let currentMediaUrls = [];
+        let currentMediaIndex = 0;
+        
+        function showCollectionDetail(collection) {
+            currentCollection = collection;
+            currentMediaUrls = collection.mediaUrls || [];
+            
+            // Hide grid view
+            document.getElementById('collection-grid-view').style.display = 'none';
+            
+            // Show detail view
+            const detailView = document.getElementById('collection-view');
+            detailView.classList.add('active');
+            
+            // Populate detail view
+            document.getElementById('detail-title').textContent = collection.title || 'Untitled';
+            
+            // Get user's full name from profile
+            const creator = document.getElementById('detail-creator');
+            creator.textContent = collection.username || 'Unknown';
+            creator.href = '#';
+            creator.onclick = (e) => {
+                e.preventDefault();
+                showProfile(collection.username);
+            };
+            
+            // Load full name from profile
+            if (collection.username) {
+                window.db.get('profiles', collection.username).then(profile => {
+                    if (profile) {
+                        creator.textContent = profile.fullName || collection.username;
+                    }
+                }).catch(err => {
+                    console.log('Could not load profile name:', err);
+                });
+            }
+            
+            // Tags
+            const tags = document.getElementById('detail-tags');
+            tags.innerHTML = '';
+            if (collection.software && collection.software.length > 0) {
+                collection.software.forEach(soft => {
+                    const tag = document.createElement('span');
+                    tag.className = 'collection-detail-tag';
+                    tag.textContent = soft;
+                    tags.appendChild(tag);
+                });
+            }
+            if (collection.equipment && collection.equipment.length > 0) {
+                collection.equipment.forEach(equip => {
+                    const tag = document.createElement('span');
+                    tag.className = 'collection-detail-tag';
+                    tag.textContent = equip;
+                    tags.appendChild(tag);
+                });
+            }
+            
+            // Description
+            document.getElementById('detail-description').textContent = collection.description || '';
+            
+            // Gallery
+            const gallery = document.getElementById('detail-gallery');
+            gallery.innerHTML = '';
+            if (currentMediaUrls.length > 0) {
+                currentMediaUrls.forEach((url, index) => {
+                    const isVideo = url.match(/\.(mp4|webm|mov)(\?|$)/i);
+                    const is3DModel = url.match(/\.glb(\?|$)/i);
+                    const mediaItem = document.createElement('div');
+                    mediaItem.className = 'collection-detail-media';
+                    
+                    // Only add onclick for non-3D models
+                    if (!is3DModel) {
+                        mediaItem.onclick = () => openLightbox(index);
+                    }
+                    
+                    if (is3DModel) {
+                        const container = document.createElement('div');
+                        container.className = 'model-viewer-container';
+                        container.style.width = '100%';
+                        container.style.height = '400px';
+                        container.style.minHeight = '400px';
+                        mediaItem.appendChild(container);
+                        init3DModelCard(container, url, 'detail');
+                    } else if (isVideo) {
+                        mediaItem.innerHTML = `<video src="${url}" muted></video>`;
+                    } else {
+                        mediaItem.innerHTML = `<img src="${url}" alt="Media">`;
+                    }
+                    
+                    gallery.appendChild(mediaItem);
+                });
+            }
+            
+            // Load comments
+            loadComments(collection.id);
+            
+            // Check if user is signed in for comments
+            window.auth.getCurrentUser().then((user) => {
+                if (user) {
+                    document.getElementById('comment-form-container').style.display = 'block';
+                    document.getElementById('comments-auth-message').style.display = 'none';
+                } else {
+                    document.getElementById('comment-form-container').style.display = 'none';
+                    document.getElementById('comments-auth-message').style.display = 'block';
+                }
+            });
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        function showCollectionGrid() {
+            currentCollection = null;
+            
+            // Hide detail view
+            document.getElementById('collection-view').classList.remove('active');
+            
+            // Hide profile view
+            document.getElementById('profile-view').classList.remove('active');
+            
+            // Show grid view
+            document.getElementById('collection-grid-view').style.display = 'block';
+            
+            // Clear search if returning from detail view via back button
+            // But keep it if user is actively searching
+            if (!document.activeElement || document.activeElement.id !== 'nav-search-box') {
+                // Only clear if not actively typing in search
+                const searchBox = document.getElementById('nav-search-box');
+                if (searchBox.value && currentCollection) {
+                    // User had a search and viewed a collection, keep the search
+                } else {
+                    searchBox.value = '';
+                    filterContent();
+                }
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Profile View Functions
+        async function showProfile(username) {
+            // Hide grid and collection views
+            document.getElementById('collection-grid-view').style.display = 'none';
+            document.getElementById('collection-view').classList.remove('active');
+            
+            // Show profile view
+            const profileView = document.getElementById('profile-view');
+            profileView.classList.add('active');
+            
+            // Show loading state
+            document.getElementById('profile-loading').style.display = 'block';
+            document.getElementById('profile-empty').style.display = 'none';
+            document.getElementById('profile-collections-grid').innerHTML = '';
+            
+            try {
+                // Load profile data
+                const profile = await window.db.get('profiles', username);
+                
+                // Load user data to check Pro status
+                const users = await window.db.getAll('users', { siteName: username });
+                let isPro = false;
+                
+                if (users && users.length > 0) {
+                    isPro = users[0].isPro || false;
+                }
+                
+                if (profile) {
+                    // Update profile info
+                    document.getElementById('profile-name').textContent = profile.fullName || username;
+                    
+                    const usernameEl = document.getElementById('profile-username');
+                    usernameEl.innerHTML = `@${username}`;
+                    
+                    if (isPro) {
+                        usernameEl.innerHTML += ' <span class="pro-badge">Pro</span>';
+                    }
+                    document.getElementById('profile-about').textContent = profile.about || 'No bio available.';
+                    
+                    // Update social links
+                    const socialContainer = document.getElementById('profile-social');
+                    socialContainer.innerHTML = '';
+                    
+                    if (profile.showInstagram && profile.instagram) {
+                        socialContainer.innerHTML += `
+                            <a href="${profile.instagram}" target="_blank" aria-label="Instagram">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg" alt="Instagram">
+                            </a>
+                        `;
+                    }
+                    
+                    if (profile.showLinkedin && profile.linkedin) {
+                        socialContainer.innerHTML += `
+                            <a href="${profile.linkedin}" target="_blank" aria-label="LinkedIn">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg" alt="LinkedIn">
+                            </a>
+                        `;
+                    }
+                    
+                    if (profile.showImdb && profile.imdb) {
+                        socialContainer.innerHTML += `
+                            <a href="${profile.imdb}" target="_blank" aria-label="IMDb">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" alt="IMDb" style="width: 40px; height: auto;">
+                            </a>
+                        `;
+                    }
+                    
+                    if (profile.showArtstation && profile.artstation) {
+                        socialContainer.innerHTML += `
+                            <a href="${profile.artstation}" target="_blank" aria-label="ArtStation">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M0 17.723l2.027 3.505h.001a2.424 2.424 0 0 0 2.164 1.333h13.457l-2.792-4.838H0zm24 .025c0-.484-.143-.935-.388-1.314L15.728 2.728a2.424 2.424 0 0 0-2.142-1.289H9.419L21.598 22.54l1.92-3.325c.378-.637.482-.919.482-1.467zM2.143 16.512L12.041 1.472 3.041 16.512H2.143z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                        `;
+                    }
+                    
+                    // Add resume link
+                    const resumeContainer = document.getElementById('profile-resume-container');
+                    if (profile.resumeUrl) {
+                        resumeContainer.innerHTML = `
+                            <a href="${profile.resumeUrl}" target="_blank" class="profile-resume-btn">
+                                📄 View Resume
+                            </a>
+                        `;
+                    }
+                    
+                    // Add portfolio site link
+                    const portfolioLink = document.getElementById('profile-portfolio-link');
+                    
+                    // Check if user has custom domain or is Pro
+                    if (users && users.length > 0) {
+                        const userData = users[0];
+                        if (userData.customDomain) {
+                            portfolioLink.href = `https://${userData.customDomain}`;
+                            portfolioLink.innerHTML = `🌐 ${userData.customDomain}`;
+                        } else if (userData.isPro) {
+                            portfolioLink.href = `https://${username}.sidey.app`;
+                            portfolioLink.innerHTML = `🌐 ${username}.sidey.app`;
+                        } else {
+                            portfolioLink.href = `/${username}`;
+                        }
+                    } else {
+                        portfolioLink.href = `/${username}`;
+                    }
+                    
+                    portfolioLink.style.display = 'block';
+                } else {
+                    // No profile data, use defaults
+                    document.getElementById('profile-name').textContent = username;
+                    
+                    const usernameEl = document.getElementById('profile-username');
+                    usernameEl.innerHTML = `@${username}`;
+                    
+                    if (isPro) {
+                        usernameEl.innerHTML += ' <span class="pro-badge">Pro</span>';
+                    }
+                    
+                    document.getElementById('profile-about').textContent = 'No bio available.';
+                }
+                
+                // Load collections
+                const collections = await window.db.getAll('collections', { username: username });
+                
+                document.getElementById('profile-loading').style.display = 'none';
+                
+                if (!collections || collections.length === 0) {
+                    document.getElementById('profile-empty').style.display = 'block';
+                    return;
+                }
+                
+                // Sort by createdAt
+                collections.sort((a, b) => {
+                    const dateA = new Date(a.createdAt || 0);
+                    const dateB = new Date(b.createdAt || 0);
+                    return dateB - dateA;
+                });
+                
+                // Display collections
+                const grid = document.getElementById('profile-collections-grid');
+                collections.forEach(collection => {
+                    const card = createCollectionCard(collection);
+                    grid.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('profile-loading').style.display = 'none';
+                alert('Failed to load profile. Please try again.');
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Lightbox Functions
+        function openLightbox(index) {
+            currentMediaIndex = index;
+            const url = currentMediaUrls[index];
+            const isVideo = url.match(/\.(mp4|webm|mov)(\?|$)/i);
+            const is3DModel = url.match(/\.glb(\?|$)/i);
+            
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            const video = document.getElementById('lightbox-video');
+            const videoSource = document.getElementById('lightbox-video-source');
+            const modelContainer = document.getElementById('lightbox-model');
+            
+            if (is3DModel) {
+                img.style.display = 'none';
+                video.style.display = 'none';
+                modelContainer.style.display = 'block';
+                modelContainer.innerHTML = ''; // Clear previous model
+                init3DModelCard(modelContainer, url);
+            } else if (isVideo) {
+                img.style.display = 'none';
+                video.style.display = 'block';
+                modelContainer.style.display = 'none';
+                videoSource.src = url;
+                video.load();
+            } else {
+                video.style.display = 'none';
+                modelContainer.style.display = 'none';
+                img.style.display = 'block';
+                img.src = url;
+            }
+            
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const video = document.getElementById('lightbox-video');
+            const modelContainer = document.getElementById('lightbox-model');
+            
+            lightbox.classList.remove('active');
+            video.pause();
+            modelContainer.innerHTML = ''; // Clean up 3D viewer
+            document.body.style.overflow = '';
+        }
+        
+        function showPrevMedia() {
+            currentMediaIndex = (currentMediaIndex - 1 + currentMediaUrls.length) % currentMediaUrls.length;
+            openLightbox(currentMediaIndex);
+        }
+        
+        function showNextMedia() {
+            currentMediaIndex = (currentMediaIndex + 1) % currentMediaUrls.length;
+            openLightbox(currentMediaIndex);
+        }
+        
+        // Close lightbox on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (document.getElementById('lightbox').classList.contains('active')) {
+                if (e.key === 'ArrowLeft') showPrevMedia();
+                if (e.key === 'ArrowRight') showNextMedia();
+            }
+        });
+        
+        // Close lightbox when clicking outside
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') {
+                closeLightbox();
+            }
+        });
+        
+        // Comments Functions
+        async function loadComments(collectionId) {
+            const commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '<p style=\"color: var(--text-secondary);\">Loading comments...</p>';
+            
+            try {
+                const comments = await window.db.getAll('comments', { collectionId: collectionId });
+                
+                commentsList.innerHTML = '';
+                
+                if (!comments || comments.length === 0) {
+                    commentsList.innerHTML = '<p style=\"color: var(--text-secondary);\">No comments yet. Be the first to comment!</p>';
+                    return;
+                }
+                
+                // Sort comments by date
+                comments.sort((a, b) => {
+                    if (!a.createdAt) return 1;
+                    if (!b.createdAt) return -1;
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                });
+                
+                // Fetch full names for comment authors
+                const authorUsernames = [...new Set(comments.map(c => c.authorName).filter(Boolean))];
+                const authorFullNames = {};
+                
+                for (const username of authorUsernames) {
+                    try {
+                        const profile = await window.db.get('profiles', username);
+                        if (profile) {
+                            authorFullNames[username] = profile.fullName || username;
+                        }
+                    } catch (err) {
+                        console.log('Could not load profile for:', username);
+                    }
+                }
+                
+                comments.forEach(comment => {
+                    const commentEl = document.createElement('div');
+                    commentEl.className = 'comment';
+                    
+                    const date = comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : 'Just now';
+                    const displayName = authorFullNames[comment.authorName] || comment.authorName || 'Anonymous';
+                    
+                    commentEl.innerHTML = `
+                        <div class=\"comment-author\">${displayName}</div>
+                        <div class=\"comment-date\">${date}</div>
+                        <div class=\"comment-text\">${comment.text}</div>
+                    `;
+                    
+                    commentsList.appendChild(commentEl);
+                });
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                commentsList.innerHTML = '<p style=\"color: #f44336;\">Error loading comments.</p>';
+            }
+        }
+        
+        async function submitComment() {
+            const commentText = document.getElementById('comment-text').value.trim();
+            
+            if (!commentText) {
+                alert('Please enter a comment.');
+                return;
+            }
+            
+            if (!currentCollection) {
+                return;
+            }
+            
+            const user = await window.auth.getCurrentUser();
+            if (!user) {
+                alert('Please sign in to comment.');
+                return;
+            }
+            
+            try {
+                // Get user data
+                const userData = await window.db.get('users', user.id);
+                
+                await window.db.create('comments', {
+                    collectionId: currentCollection.id,
+                    authorId: user.id,
+                    authorName: userData?.siteName || user.email,
+                    text: commentText
+                });
+                
+                document.getElementById('comment-text').value = '';
+                loadComments(currentCollection.id);
+            } catch (error) {
+                console.error('Error submitting comment:', error);
+                alert('Failed to post comment. Please try again.');
+            }
+        }
+        
+        async function loadContent() {
+            try {
+                // Load collections from the API
+                const collections = await window.db.getAll('collections', { orderBy: 'createdAt', orderDir: 'desc' });
+                
+                if (collections && collections.length > 0) {
+                    loadingDiv.style.display = 'none';
+                    
+                    // Store collections for filtering
+                    allCollections = collections;
+                    
+                    // Fetch user data to determine Pro status for each collection
+                    const userIds = [...new Set(allCollections.map(c => c.userId).filter(Boolean))];
+                    const userProStatus = {};
+                    
+                    // Get user Pro status
+                    for (const userId of userIds.slice(0, 10)) {
+                        try {
+                            const userData = await window.db.get('users', userId);
+                            if (userData) {
+                                userProStatus[userId] = userData.isPro || false;
+                            }
+                        } catch (err) {
+                            console.log('Could not load user:', userId);
+                        }
+                    }
+                    
+                    // Fetch full names from profiles collection
+                    const usernames = [...new Set(allCollections.map(c => c.username).filter(Boolean))];
+                    const userFullNames = {};
+                    
+                    for (const username of usernames) {
+                        try {
+                            const profile = await window.db.get('profiles', username);
+                            if (profile) {
+                                userFullNames[username] = profile.fullName || username;
+                            }
+                        } catch (err) {
+                            console.log('Could not load profile for:', username);
+                        }
+                    }
+                    
+                    // Add Pro status and full names to collections and sort: Pro users first, then by date
+                    allCollections = allCollections.map(c => ({
+                        ...c,
+                        isPro: userProStatus[c.userId] || false,
+                        displayName: userFullNames[c.username] || c.username || 'Unknown'
+                    })).sort((a, b) => {
+                        // Pro users always appear first
+                        if (a.isPro && !b.isPro) return -1;
+                        if (!a.isPro && b.isPro) return 1;
+                        
+                        // Within same tier, sort by date
+                        const timeA = new Date(a.createdAt || 0).getTime();
+                        const timeB = new Date(b.createdAt || 0).getTime();
+                        return timeB - timeA;
+                    });
+                    
+                    // Display all collections initially
+                    displayCollections(allCollections);
+                    
+                    return;
+                }
+                
+                // No collections found
+                loadingDiv.style.display = 'none';
+                emptyDiv.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading content:', error);
+                loadingDiv.innerHTML = '<p style="color: #f44336;">Error loading content. Please refresh the page.</p>';
+            }
+        }
+                
+        loadContent();
+        
+        // Handle hash-based routing for profiles
+        function handleHashChange() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#profile/')) {
+                const username = hash.substring(9); // Remove '#profile/'
+                if (username) {
+                    showProfile(username);
+                }
+            }
+        }
+        
+        // Check hash on page load
+        window.addEventListener('load', handleHashChange);
+        
+        // Check hash when it changes
+        window.addEventListener('hashchange', handleHashChange);
+    </script>
+
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme on page load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+</body>
+</html>

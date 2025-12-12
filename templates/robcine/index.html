@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Portfolio — Stills</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    #blog-search::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      font-style: italic;
+      opacity: 1;
+    }
+    #blog-search:focus {
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <nav style="position: fixed; top: 48px; right: 48px; z-index: 50; display: flex; gap: 16px;">
+    <a href="about.html" style="color: #eaeaea; text-decoration: none; font-size: 0.9rem;">About</a>
+    <a href="rental.html" style="color: #eaeaea; text-decoration: none; font-size: 0.9rem;">Rental</a>
+    <a href="hire.html" style="color: #eaeaea; text-decoration: none; font-size: 0.9rem;">Hire Me</a>
+  </nav>
+  
+  <main class="site">
+    <section class="hero">
+      <div class="hero-content">
+        <h1 id="site-title">Your Name</h1>
+        <p id="site-description">
+          Welcome to my portfolio. Add your bio and description in the dashboard.
+        </p>
+      </div>
+      <div id="gallery" class="gallery" aria-live="polite"></div>
+    </section>
+
+    <section class="blog-section">
+      <div style="margin-bottom: 24px;">
+        <input type="text" id="blog-search" placeholder="search blog posts" style="width: 100%; max-width: 400px; padding: 10px; background: #000; border: none; color: #fff; border-radius: 4px;" />
+      </div>
+      <div id="blog-container"></div>
+    </section>
+  </main>
+
+  <div id="lightbox" class="lightbox hidden" aria-hidden="true">
+    <button id="lb-close" class="lb-close" aria-label="Close">✕</button>
+    <button id="lb-prev" class="lb-nav lb-prev" aria-label="Previous">◀</button>
+    <div class="lb-content">
+      <img id="lb-img" src="" alt="" />
+    </div>
+    <button id="lb-next" class="lb-nav lb-next" aria-label="Next">▶</button>
+  </div>
+
+  <footer id="sidey-footer" style="display: none; text-align: center; padding: 32px 20px; color: #999; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 60px;">
+    <p style="margin: 0;">
+      Made with <a href="../../index.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Sidey</a>
+    </p>
+  </footer>
+
+  <script src="../../js/cloudflare-config.js"></script>
+  <script src="js/gallery.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/blog.js"></script>
+  <script src="js/background-video.js"></script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Sidey CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 48px;
+        }
+        .logo {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #000;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 32px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 8px;
+        }
+        .btn-primary:hover {
+            background: #333;
+        }
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            color: #999;
+            position: relative;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        .divider::before {
+            left: 0;
+        }
+        .divider::after {
+            right: 0;
+        }
+        .alt-link {
+            text-align: center;
+            margin-top: 24px;
+            color: #666;
+        }
+        .alt-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .alt-link a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 16px;
+        }
+        .back-link a {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link a:hover {
+            color: #667eea;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">sidey</div>
+        <p class="subtitle">Create your portfolio in minutes</p>
+        
+        <div id="message" class="message hidden"></div>
+        
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required placeholder="you@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="At least 6 characters" minlength="6">
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" required placeholder="Re-enter password" minlength="6">
+            </div>
+            
+            <div class="form-group">
+                <label for="site-name">Your Portfolio Name</label>
+                <input type="text" id="site-name" required placeholder="e.g., john-doe (only letters, numbers, and hyphens)" pattern="[a-z0-9-]+">
+                <small style="color: #999; font-size: 0.85rem; display: block; margin-top: 4px;">
+                    This will be your unique site identifier (e.g., john-doe.sidey.com)
+                </small>
+            </div>
+            
+            <button type="submit" class="btn-primary" id="signup-btn">Create Account</button>
+        </form>
+        
+        <div class="alt-link">
+            Already have an account? <a href="signin.html">Sign In</a>
+        </div>
+        
+        <div class="back-link">
+            <a href="index.html">← Back to Home</a>
+        </div>
+    </div>
+
+    <script src="js/cloudflare-config.js"></script>
+    <script>
+        const form = document.getElementById('signup-form');
+        const messageDiv = document.getElementById('message');
+        const signupBtn = document.getElementById('signup-btn');
+
+        // Get template from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const templateParam = urlParams.get('template');
+
+        // Check if already logged in
+        if (auth.isAuthenticated()) {
+            window.location.href = 'dashboard.html';
+        }
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            messageDiv.classList.add('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessage();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const siteName = document.getElementById('site-name').value.trim().toLowerCase();
+            
+            // Validation
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (!/^[a-z0-9-]+$/.test(siteName)) {
+                showMessage('Site name can only contain lowercase letters, numbers, and hyphens', 'error');
+                return;
+            }
+            
+            if (siteName.length < 3) {
+                showMessage('Site name must be at least 3 characters', 'error');
+                return;
+            }
+            
+            signupBtn.disabled = true;
+            signupBtn.textContent = 'Creating Account...';
+            
+            try {
+                // Create user account using Cloudflare API
+                await auth.signUp(email, password, siteName);
+                
+                // If template was selected, update the site
+                if (templateParam) {
+                    await db.update('sites', auth.getCurrentUser().siteName, { template: templateParam });
+                }
+                
+                showMessage('Account created successfully! Redirecting...', 'success');
+                
+                // Redirect based on whether template was selected
+                setTimeout(() => {
+                    if (templateParam) {
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        window.location.href = 'choose-template.html';
+                    }
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                let errorMessage = error.message || 'Failed to create account. Please try again.';
+                
+                showMessage(errorMessage, 'error');
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>

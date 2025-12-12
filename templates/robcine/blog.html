@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blog</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .post { max-width: 800px; margin: 0 auto; padding: 48px 24px; }
+    .post h2 { margin-top: 32px; margin-bottom: 8px; }
+    .post-meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+    .posts-list { max-width: 800px; margin: 0 auto; padding: 48px 24px; }
+    .post-item { margin-bottom: 32px; }
+    .post-item h2 { margin: 0 0 8px 0; }
+    .post-item a { color: var(--fg); text-decoration: none; }
+    .post-item a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="posts-list">
+      <a href="index.html">← Back</a>
+      <h1 style="margin-top:12px;color:#fff;">Blog</h1>
+      <div id="posts-container"></div>
+    </div>
+  </main>
+
+  <script src="../../js/cloudflare-config.js"></script>
+  <script>
+    // Get site name from URL or window
+    const urlParams = new URLSearchParams(window.location.search);
+    const SITE_NAME = urlParams.get('siteName') || window.SITE_NAME_FROM_WORKER || window.SITE_NAME || 'demo';
+
+    async function initBlog() {
+      try {
+        const posts = await db.getAll('posts', { siteId: SITE_NAME, orderBy: 'updatedAt', orderDir: 'desc' });
+        const container = document.getElementById("posts-container");
+        
+        if (posts.length === 0) {
+          container.innerHTML = "<p style='color: var(--muted);'>No posts yet.</p>";
+          return;
+        }
+        
+        container.innerHTML = posts.map((p) => `
+          <div class="post-item">
+            <h2><a href="#post-${p.id}">${p.title}</a></h2>
+            <div class="post-meta">${new Date(p.updatedAt || p.createdAt).toLocaleDateString()}</div>
+            <p style="color: var(--muted); line-height: 1.6;">${p.content.substring(0, 200)}...</p>
+          </div>
+        `).join("");
+      } catch (error) {
+        console.error(error);
+        document.getElementById("posts-container").innerHTML = "<p style='color: #f44336;'>Error loading posts.</p>";
+      }
+    }
+
+    initBlog();
+  </script>
+</body>
+</html>

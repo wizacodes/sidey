@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content - sidey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fafafa;
+            color: #000;
+            padding-top: 70px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo {
+            height: 40px;
+            width: auto;
+        }
+        .btn {
+            background: #000;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #333;
+        }
+        .content-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+        .content-main {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .content-media-container {
+            width: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-height: 80vh;
+        }
+        .content-media-container img,
+        .content-media-container video {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        .content-sidebar {
+            position: sticky;
+            top: 90px;
+            height: fit-content;
+        }
+        .user-info {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .username {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .software {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        .content-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        .content-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #666;
+        }
+        .comments-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .comments-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .comment-form {
+            margin-bottom: 32px;
+        }
+        .comment-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 12px;
+        }
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: #000;
+        }
+        .comment-form button {
+            background: #000;
+            color: #fff;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .comment-form button:hover {
+            background: #333;
+        }
+        .comment-form button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .comment {
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .comment-author {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .comment-date {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        .comment-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .error {
+            text-align: center;
+            padding: 60px 20px;
+            color: #f44336;
+        }
+        .login-prompt {
+            text-align: center;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+        .login-prompt a {
+            color: #000;
+            font-weight: 600;
+        }
+        @media (max-width: 1024px) {
+            .content-container {
+                grid-template-columns: 1fr;
+            }
+            .content-sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html">
+            <img src="sideylogo.svg" alt="Sidey Logo" class="nav-logo">
+        </a>
+        <div>
+            <a href="index.html" class="btn">Back to Library</a>
+        </div>
+    </nav>
+
+    <div id="loading" class="loading">Loading content...</div>
+    <div id="error" class="error" style="display: none;">Error loading content. Please try again.</div>
+
+    <div id="content-container" class="content-container" style="display: none;">
+        <div class="content-main">
+            <div class="content-media-container" id="media-container"></div>
+        </div>
+
+        <div class="content-sidebar">
+            <div class="user-info">
+                <div class="username" id="username">Loading...</div>
+                <div class="software" id="software">Loading...</div>
+                <div class="content-title" id="content-title"></div>
+                <div class="content-description" id="content-description"></div>
+            </div>
+
+            <div class="comments-section">
+                <h3 class="comments-title">Comments</h3>
+                
+                <div id="login-prompt" class="login-prompt" style="display: none;">
+                    <p><a href="signin.html">Sign in</a> to leave a comment</p>
+                </div>
+
+                <div id="comment-form" class="comment-form" style="display: none;">
+                    <textarea id="comment-text" placeholder="Write a comment..."></textarea>
+                    <button id="submit-comment">Post Comment</button>
+                </div>
+
+                <div id="comments-list" class="comments-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/cloudflare-config.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const contentId = urlParams.get('id');
+        
+        let pageUser = null;
+        
+        // Check auth state
+        async function checkAuth() {
+            pageUser = await window.auth.getCurrentUser();
+            if (pageUser) {
+                document.getElementById('login-prompt').style.display = 'none';
+                document.getElementById('comment-form').style.display = 'block';
+            } else {
+                document.getElementById('login-prompt').style.display = 'block';
+                document.getElementById('comment-form').style.display = 'none';
+            }
+        }
+        checkAuth();
+        
+        async function loadContent() {
+            if (!contentId) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').textContent = 'No content ID provided';
+                document.getElementById('error').style.display = 'block';
+                return;
+            }
+            
+            try {
+                const content = await window.db.get('content', contentId);
+                
+                if (!content) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').textContent = 'Content not found';
+                    document.getElementById('error').style.display = 'block';
+                    return;
+                }
+                
+                // Display content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content-container').style.display = 'grid';
+                
+                // Media
+                const mediaContainer = document.getElementById('media-container');
+                if (content.type === 'video') {
+                    mediaContainer.innerHTML = `<video src="${content.url}" controls autoplay loop></video>`;
+                } else {
+                    mediaContainer.innerHTML = `<img src="${content.url}" alt="${content.title || 'Content'}">`;
+                }
+                
+                // User info
+                document.getElementById('username').textContent = content.username || content.userId;
+                document.getElementById('software').textContent = content.software || 'Unknown';
+                document.getElementById('content-title').textContent = content.title || '';
+                document.getElementById('content-description').textContent = content.description || '';
+                
+                // Load comments
+                loadComments();
+                
+            } catch (error) {
+                console.error('Error loading content:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        async function loadComments() {
+            try {
+                const comments = await window.db.getAll('comments', { contentId: contentId, orderBy: 'createdAt', orderDir: 'desc' });
+                
+                const commentsList = document.getElementById('comments-list');
+                commentsList.innerHTML = '';
+                
+                if (!comments || comments.length === 0) {
+                    commentsList.innerHTML = '<p style="color: #999; text-align: center;">No comments yet. Be the first to comment!</p>';
+                    return;
+                }
+                
+                comments.forEach(comment => {
+                    const commentEl = document.createElement('div');
+                    commentEl.className = 'comment';
+                    
+                    const date = comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : 'Just now';
+                    
+                    commentEl.innerHTML = `
+                        <div class="comment-author">${comment.authorName || 'Anonymous'}</div>
+                        <div class="comment-date">${date}</div>
+                        <div class="comment-text">${comment.text}</div>
+                    `;
+                    
+                    commentsList.appendChild(commentEl);
+                });
+                
+            } catch (error) {
+                console.error('Error loading comments:', error);
+            }
+        }
+        
+        // Submit comment
+        document.getElementById('submit-comment').addEventListener('click', async () => {
+            if (!currentUser) {
+                alert('Please sign in to comment');
+                return;
+            }
+            
+            const commentText = document.getElementById('comment-text').value.trim();
+            if (!commentText) return;
+            
+            const submitBtn = document.getElementById('submit-comment');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Posting...';
+            
+            try {
+                await window.db.create('comments', {
+                    contentId: contentId,
+                    text: commentText,
+                    authorId: currentUser.id,
+                    authorName: currentUser.email.split('@')[0]
+                });
+                
+                document.getElementById('comment-text').value = '';
+                loadComments();
+                
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                alert('Error posting comment. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Post Comment';
+            }
+        });
+        
+        loadContent();
+    </script>
+</body>
+</html>

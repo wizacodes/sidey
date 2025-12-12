@@ -1,0 +1,9 @@
+{
+  "name": "robscine-website",
+  "version": "1.0.0",
+  "description": "Robert Marsh cinematography portfolio template",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static template - no build required'"
+  }
+}

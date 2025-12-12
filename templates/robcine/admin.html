@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Robert Marsh</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="../../js/cloudflare-config.js"></script>
+  <style>
+    .admin-container { max-width: 900px; margin: 0 auto; padding: 48px; }
+    .admin-section { margin-bottom: 32px; padding: 20px; background: #111; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); }
+    .admin-section h2 { margin-top: 0; }
+    .form-group { margin-bottom: 16px; display: flex; flex-direction: column; }
+    .form-group label { margin-bottom: 6px; font-size: 0.9rem; color: #bdbdbd; }
+    .form-group input, .form-group textarea { background: #000; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px; border-radius: 4px; }
+    .form-group textarea { font-family: monospace; min-height: 200px; }
+    button { background: #222; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px 16px; cursor: pointer; border-radius: 4px; }
+    button:hover { background: #333; }
+    .posts-list { list-style: none; padding: 0; }
+    .posts-list li { padding: 12px; background: #000; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+    .message { padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+    .message.success { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+    .message.error { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+    #auth-container { display: none; }
+    #admin-container { display: none; }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Admin Panel</h1>
+
+    <!-- Auth Section -->
+    <div id="auth-section" class="admin-section">
+      <h2>Sign In</h2>
+      <div id="auth-message"></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="auth-email" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="auth-password" />
+      </div>
+      <button onclick="signIn()">Sign In</button>
+    </div>
+
+    <!-- Admin Section -->
+    <div id="admin-section" class="admin-section" style="display: none;">
+      <button onclick="signOutUser()">Sign Out</button>
+
+      <!-- Upload Image -->
+      <div style="margin-top: 24px;">
+        <h3>Upload Image</h3>
+        <div id="upload-message"></div>
+        <div class="form-group">
+          <label>Choose PNG or JPG</label>
+          <input type="file" id="file-input" accept="image/*" />
+        </div>
+        <button onclick="uploadImage()">Upload</button>
+      </div>
+
+      <!-- Images List -->
+      <div style="margin-top: 24px;">
+        <h3>Uploaded Images</h3>
+        <ul id="images-list" class="posts-list"></ul>
+      </div>
+
+      <!-- Upload Background Video -->
+      <div style="margin-top: 24px;">
+        <h3>Upload Background Showreel</h3>
+        <div id="video-upload-message"></div>
+        <div class="form-group">
+          <label>Choose MP4 Video</label>
+          <input type="file" id="video-file-input" accept="video/mp4" />
+        </div>
+        <button onclick="uploadBackgroundVideo()">Upload Video</button>
+        <div id="current-video" style="margin-top: 16px;"></div>
+      </div>
+
+      <!-- Upload BTS Image -->
+      <div style="margin-top: 24px;">
+        <h3>Upload BTS Image</h3>
+        <div id="bts-upload-message"></div>
+        <div class="form-group">
+          <label>Choose BTS Image(s)</label>
+          <input type="file" id="bts-file-input" accept="image/*" multiple />
+        </div>
+        <button onclick="uploadBTSImages()">Upload BTS Images</button>
+      </div>
+
+      <!-- BTS Images List -->
+      <div style="margin-top: 24px;">
+        <h3>BTS Images</h3>
+        <ul id="bts-images-list" class="posts-list"></ul>
+      </div>
+
+      <!-- Create Post -->
+      <div style="margin-top: 24px;">
+        <h3>Create Blog Post</h3>
+        <div id="post-message"></div>
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="post-title" />
+        </div>
+        <div class="form-group">
+          <label>Content (markdown)</label>
+          <textarea id="post-content"></textarea>
+        </div>
+        <button onclick="createPost()">Publish</button>
+      </div>
+
+      <!-- Posts List -->
+      <div style="margin-top: 24px;">
+        <h3>Posts</h3>
+        <ul id="posts-list" class="posts-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SITE_NAME = 'robcine';
+    let currentUser = null;
+
+    // Monitor auth state
+    auth.onAuthStateChanged((user) => {
+      currentUser = user;
+      const authSection = document.getElementById("auth-section");
+      const adminSection = document.getElementById("admin-section");
+      if (user) {
+        authSection.style.display = "none";
+        adminSection.style.display = "block";
+        loadPosts();
+        loadImages();
+        loadBTSImages();
+        loadCurrentVideo();
+      } else {
+        authSection.style.display = "block";
+        adminSection.style.display = "none";
+      }
+    });
+
+    async function signIn() {
+      const email = document.getElementById("auth-email").value;
+      const password = document.getElementById("auth-password").value;
+      try {
+        await auth.signIn(email, password);
+        showAuthMessage("Signed in!", "success");
+      } catch (err) {
+        showAuthMessage(err.message || 'Sign in failed', "error");
+      }
+    }
+
+    async function signOutUser() {
+      await auth.signOut();
+    }
+
+    async function uploadImage() {
+      const file = document.getElementById("file-input").files[0];
+      if (!file) {
+        showUploadMessage("Choose a file first", "error");
+        return;
+      }
+      try {
+        const timestamp = Date.now();
+        const filename = `${timestamp}-${file.name}`;
+        const result = await storage.upload(file, `${SITE_NAME}/uploads/${filename}`);
+        
+        // Save to gallery
+        await db.create('gallery', {
+          siteId: SITE_NAME,
+          url: result.url,
+          filename: filename,
+          type: 'image'
+        });
+        
+        showUploadMessage("Uploaded: " + file.name, "success");
+        document.getElementById("file-input").value = "";
+        loadImages();
+      } catch (err) {
+        showUploadMessage(err.message || 'Upload failed', "error");
+      }
+    }
+
+    async function createPost() {
+      const title = document.getElementById("post-title").value;
+      const content = document.getElementById("post-content").value;
+      if (!title || !content) {
+        showPostMessage("Fill in all fields", "error");
+        return;
+      }
+      try {
+        await db.create('posts', {
+          siteId: SITE_NAME,
+          title,
+          content,
+          slug: title.toLowerCase().replace(/\s+/g, "-"),
+          published: true
+        });
+        showPostMessage("Post published!", "success");
+        document.getElementById("post-title").value = "";
+        document.getElementById("post-content").value = "";
+        loadPosts();
+      } catch (err) {
+        showPostMessage(err.message || 'Failed to create post', "error");
+      }
+    }
+
+    async function loadPosts() {
+      try {
+        const posts = await db.getAll('posts', { siteId: SITE_NAME, orderBy: 'updatedAt', orderDir: 'desc' });
+        const list = document.getElementById("posts-list");
+        list.innerHTML = posts.map(p => `
+          <li>
+            <div>
+              <strong>${p.title}</strong><br />
+              <small>${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'Just now'}</small>
+            </div>
+            <button onclick="deletePost('${p.id}')">Delete</button>
+          </li>
+        `).join("");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadImages() {
+      try {
+        const images = await db.getAll('gallery', { siteId: SITE_NAME });
+        const list = document.getElementById("images-list");
+        if (images.length === 0) {
+          list.innerHTML = "<li><small>No images yet.</small></li>";
+          return;
+        }
+        list.innerHTML = images.map(img => `
+          <li style="align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="${img.url}" alt="${img.filename}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" />
+              <div>
+                <strong>${img.filename}</strong>
+              </div>
+            </div>
+            <button onclick="deleteImage('${img.id}', '${img.url}')">Delete</button>
+          </li>
+        `).join("");
+      } catch (err) {
+        console.error('Error loading images:', err);
+      }
+    }
+
+    async function deleteImage(id, url) {
+      if (!confirm("Delete this image?")) return;
+      try {
+        await db.delete('gallery', id);
+        await storage.delete(url);
+        loadImages();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deletePost(id) {
+      if (!confirm("Delete this post?")) return;
+      try {
+        await db.delete('posts', id);
+        loadPosts();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function showAuthMessage(msg, type) {
+      document.getElementById("auth-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showUploadMessage(msg, type) {
+      document.getElementById("upload-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showPostMessage(msg, type) {
+      document.getElementById("post-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showBTSUploadMessage(msg, type) {
+      document.getElementById("bts-upload-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showVideoUploadMessage(msg, type) {
+      document.getElementById("video-upload-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+
+    // Background Video Functions
+    async function uploadBackgroundVideo() {
+      const file = document.getElementById("video-file-input").files[0];
+      if (!file) {
+        showVideoUploadMessage("Choose a video file first", "error");
+        return;
+      }
+
+      showVideoUploadMessage("Uploading video...", "success");
+      
+      try {
+        const result = await storage.upload(file, `${SITE_NAME}/background/showreel.mp4`);
+        
+        // Check if setting exists and update or create
+        const existing = await db.getAll('settings', { siteId: SITE_NAME, key: 'backgroundVideo' });
+        if (existing.length > 0) {
+          await db.update('settings', existing[0].id, {
+            url: result.url
+          });
+        } else {
+          await db.create('settings', {
+            siteId: SITE_NAME,
+            key: 'backgroundVideo',
+            url: result.url
+          });
+        }
+        
+        showVideoUploadMessage("Video uploaded successfully!", "success");
+        document.getElementById("video-file-input").value = "";
+        loadCurrentVideo();
+      } catch (err) {
+        showVideoUploadMessage(err.message || 'Upload failed', "error");
+      }
+    }
+
+    async function loadCurrentVideo() {
+      try {
+        const settings = await db.getAll('settings', { siteId: SITE_NAME, key: 'backgroundVideo' });
+        const container = document.getElementById("current-video");
+        if (settings.length > 0) {
+          const data = settings[0];
+          container.innerHTML = `
+            <p style="color: #4caf50; font-size: 0.9rem;">Current video: <a href="${data.url}" target="_blank" style="color: #fff;">View</a></p>
+            <button onclick="deleteBackgroundVideo('${data.id}', '${data.url}')">Delete Video</button>
+          `;
+        } else {
+          container.innerHTML = "<p style='color: #bdbdbd; font-size: 0.9rem;'>No video uploaded yet.</p>";
+        }
+      } catch (err) {
+        console.error('Error loading video:', err);
+      }
+    }
+
+    async function deleteBackgroundVideo(id, url) {
+      if (!confirm("Delete the background video?")) return;
+      
+      try {
+        await storage.delete(url);
+        await db.delete('settings', id);
+        showVideoUploadMessage("Video deleted", "success");
+        loadCurrentVideo();
+      } catch (err) {
+        showVideoUploadMessage(err.message || 'Delete failed', "error");
+      }
+    }
+
+    // BTS Image Functions
+    async function uploadBTSImages() {
+      const files = document.getElementById("bts-file-input").files;
+      if (files.length === 0) {
+        showBTSUploadMessage("Choose at least one file", "error");
+        return;
+      }
+
+      showBTSUploadMessage(`Uploading ${files.length} image(s)...`, "success");
+      
+      try {
+        for (const file of files) {
+          const timestamp = Date.now();
+          const filename = `${timestamp}-${file.name}`;
+          const result = await storage.upload(file, `${SITE_NAME}/bts/${filename}`);
+          
+          await db.create('bts', {
+            siteId: SITE_NAME,
+            url: result.url,
+            filename: file.name
+          });
+        }
+        
+        showBTSUploadMessage(`Successfully uploaded ${files.length} image(s)!`, "success");
+        document.getElementById("bts-file-input").value = "";
+        loadBTSImages();
+      } catch (err) {
+        showBTSUploadMessage(err.message || 'Upload failed', "error");
+      }
+    }
+
+    async function loadBTSImages() {
+      try {
+        const images = await db.getAll('bts', { siteId: SITE_NAME, orderBy: 'createdAt', orderDir: 'desc' });
+        const list = document.getElementById("bts-images-list");
+        if (images.length === 0) {
+          list.innerHTML = "<li><small>No BTS images yet.</small></li>";
+          return;
+        }
+        list.innerHTML = images.map(img => `
+          <li style="align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="${img.url}" alt="${img.filename}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" />
+              <div>
+                <strong>${img.filename}</strong>
+              </div>
+            </div>
+            <button onclick="deleteBTSImage('${img.id}', '${img.url}')">Delete</button>
+          </li>
+        `).join("");
+      } catch (err) {
+        console.error('Error loading BTS images:', err);
+      }
+    }
+
+    async function deleteBTSImage(id, url) {
+      if (!confirm("Delete this BTS image?")) return;
+      try {
+        await db.delete('bts', id);
+        await storage.delete(url);
+        loadBTSImages();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

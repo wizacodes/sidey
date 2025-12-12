@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection - sidey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            color: #fff;
+            padding-top: 70px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #000;
+            padding: 10px 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo {
+            height: 40px;
+            width: auto;
+            filter: invert(1);
+        }
+        .btn {
+            background: #fff;
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #e0e0e0;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 40px;
+            align-items: start;
+            background: #000;
+        }
+        .collection-main {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .collection-sidebar {
+            position: sticky;
+            top: 90px;
+        }
+        .collection-header {
+            background: #111;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(255,255,255,0.05);
+        }
+        .collection-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        .username {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #999;
+        }
+        .username a {
+            color: #999;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .username a:hover {
+            opacity: 0.7;
+        }
+        .tags-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #222;
+        }
+        .tags-group {
+            margin-bottom: 16px;
+        }
+        .tags-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .collection-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #999;
+            margin-bottom: 20px;
+        }
+        .description-form {
+            display: none;
+            margin-top: 20px;
+        }
+        .description-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 12px;
+            background: #000;
+            color: #fff;
+        }
+        .description-form textarea:focus {
+            outline: none;
+            border-color: #fff;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn.secondary {
+            background: #222;
+            color: #fff;
+        }
+        .btn.secondary:hover {
+            background: #333;
+        }
+        .collection-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .media-item {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .media-item:hover {
+            transform: scale(1.01);
+        }
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+        .comments-section {
+            background: #111;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(255,255,255,0.05);
+        }
+        .comments-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+        .comment-form {
+            margin-bottom: 32px;
+        }
+        .comment-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 12px;
+            background: #000;
+            color: #fff;
+        }
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: #fff;
+        }
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .comment {
+            padding: 16px;
+            background: #1a1a1a;
+            border-radius: 8px;
+        }
+        .comment-author {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+        .comment-date {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .comment-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .login-prompt {
+            text-align: center;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+        .login-prompt a {
+            color: #fff;
+            font-weight: 600;
+        }
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .collection-sidebar {
+                position: static;
+            }
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        .lightbox-content img,
+        .lightbox-content video {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #fff;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html">
+            <img src="sideylogo.svg" alt="Sidey Logo" class="nav-logo">
+        </a>
+        <div>
+            <a href="index.html" class="btn">Back to Library</a>
+        </div>
+    </nav>
+
+    <div id="loading" class="loading">Loading collection...</div>
+
+    <div id="container-wrapper" style="display: none;">
+        <div id="container" class="container">
+            <div class="collection-main">
+                <div class="collection-grid" id="collection-grid"></div>
+            </div>
+
+            <div class="collection-sidebar">
+                <div class="collection-header">
+                    <div class="collection-title" id="collection-title">Loading...</div>
+                    <div class="username" id="username">Loading...</div>
+                    <div class="collection-description" id="description">No description yet.</div>
+                    
+                    <div id="tags-section" class="tags-section" style="display: none;">
+                        <div class="tags-group" id="software-group" style="display: none;">
+                            <div class="tags-label">Software</div>
+                            <div class="tag-list" id="software-tags"></div>
+                        </div>
+                        <div class="tags-group" id="equipment-group" style="display: none;">
+                            <div class="tags-label">Camera & Lenses</div>
+                            <div class="tag-list" id="equipment-tags"></div>
+                        </div>
+                    </div>
+                    <button id="edit-description-btn" class="btn" style="display: none;">Edit Description</button>
+                    
+                    <div id="description-form" class="description-form">
+                        <textarea id="description-input" placeholder="Describe your collection..."></textarea>
+                        <div class="btn-group">
+                            <button id="save-description-btn" class="btn">Save</button>
+                            <button id="cancel-description-btn" class="btn secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <h3 class="comments-title">Comments</h3>
+                    
+                    <div id="login-prompt" class="login-prompt" style="display: none;">
+                        <p><a href="signin.html">Sign in</a> to leave a comment</p>
+                    </div>
+
+                    <div id="comment-form" class="comment-form" style="display: none;">
+                        <textarea id="comment-text" placeholder="Write a comment..."></textarea>
+                        <button id="submit-comment" class="btn">Post Comment</button>
+                    </div>
+
+                    <div id="comments-list" class="comments-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lightbox" class="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">×</button>
+        <div class="lightbox-content" id="lightbox-content"></div>
+    </div>
+
+    <script src="js/cloudflare-config.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const collectionId = urlParams.get('collection');
+        const username = urlParams.get('user'); // Keep for backward compatibility
+        
+        let pageUser = null;
+        let collectionData = null;
+        
+        // Check auth state
+        async function checkAuth() {
+            pageUser = await window.auth.getCurrentUser();
+            if (pageUser) {
+                document.getElementById('login-prompt').style.display = 'none';
+                document.getElementById('comment-form').style.display = 'block';
+                
+                // Show edit button if it's the user's own collection
+                if (collectionData && collectionData.userId === pageUser.id) {
+                    document.getElementById('edit-description-btn').style.display = 'inline-block';
+                }
+            } else {
+                document.getElementById('login-prompt').style.display = 'block';
+                document.getElementById('comment-form').style.display = 'none';
+            }
+        }
+        checkAuth();
+        
+        async function loadCollection() {
+            // Prioritize collectionId, fallback to username for backward compatibility
+            if (!collectionId && !username) {
+                document.getElementById('loading').textContent = 'No collection specified';
+                return;
+            }
+            
+            try {
+                if (collectionId) {
+                    // New method: Load by collection ID
+                    collectionData = await window.db.get('collections', collectionId);
+                    
+                    if (!collectionData) {
+                        document.getElementById('loading').textContent = 'Collection not found';
+                        return;
+                    }
+                    collectionData.id = collectionId;
+                    
+                } else {
+                    // Old method: Load by username (backward compatibility)
+                    collectionData = await window.db.get('collections', username);
+                    
+                    if (!collectionData) {
+                        // Create collection document
+                        const siteData = await window.db.get('sites', username);
+                        collectionData = {
+                            userId: siteData ? siteData.ownerEmail : '',
+                            username: username,
+                            description: ''
+                        };
+                        await window.db.create('collections', collectionData);
+                    }
+                }
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('container-wrapper').style.display = 'block';
+                
+                // Display collection title or username
+                const titleDiv = document.getElementById('collection-title');
+                if (collectionData.title) {
+                    titleDiv.textContent = collectionData.title;
+                } else {
+                    titleDiv.textContent = collectionData.username || username;
+                }
+                
+                // Display username with link to portfolio
+                const portfolioUsername = collectionData.username || username;
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const baseUrl = isLocalhost ? window.location.origin : 'https://sidey.pages.dev';
+                document.getElementById('username').innerHTML = `<a href="${baseUrl}/${portfolioUsername}" target="_blank">${portfolioUsername}</a>`;
+                
+                // Display description
+                const descDiv = document.getElementById('description');
+                if (collectionData.description) {
+                    descDiv.textContent = collectionData.description;
+                } else {
+                    descDiv.textContent = 'No description yet.';
+                    descDiv.style.color = '#999';
+                }
+                
+                // Display tags
+                displayTags(collectionData);
+                
+                // Load media from storage
+                await loadMedia();
+                
+                // Load comments
+                loadComments();
+                
+            } catch (error) {
+                console.error('Error loading collection:', error);
+                document.getElementById('loading').textContent = 'Error loading collection';
+            }
+        }
+        
+        async function loadMedia() {
+            const grid = document.getElementById('collection-grid');
+            
+            try {
+                // If collection has mediaUrls, use those
+                if (collectionData.mediaUrls && collectionData.mediaUrls.length > 0) {
+                    for (const url of collectionData.mediaUrls) {
+                        const isVideo = url.match(/\.(mp4|webm|mov)/i);
+                        
+                        const mediaItem = document.createElement('div');
+                        mediaItem.className = 'media-item';
+                        mediaItem.onclick = () => openLightbox(url, isVideo);
+                        
+                        if (isVideo) {
+                            mediaItem.innerHTML = `<video src="${url}" muted loop></video>`;
+                            const video = mediaItem.querySelector('video');
+                            video.addEventListener('loadedmetadata', () => {
+                                if (video.duration) {
+                                    video.currentTime = video.duration / 2;
+                                }
+                            });
+                            mediaItem.addEventListener('mouseenter', () => {
+                                video.currentTime = 0;
+                                video.play();
+                            });
+                            mediaItem.addEventListener('mouseleave', () => {
+                                video.pause();
+                                if (video.duration) {
+                                    video.currentTime = video.duration / 2;
+                                }
+                            });
+                        } else {
+                            mediaItem.innerHTML = `<img src="${url}" alt="Media">`;
+                        }
+                        
+                        grid.appendChild(mediaItem);
+                    }
+                    return;
+                }
+                
+                // Fallback: Load from storage (for old collections with R2)
+                const portfolioUsername = collectionData.username || username;
+                const storageList = await window.storage.list(`${portfolioUsername}/uploads/`);
+                
+                if (!storageList || storageList.length === 0) {
+                    grid.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No media in this collection yet.</p>';
+                    return;
+                }
+                
+                for (const item of storageList) {
+                    const url = item.url;
+                    const isVideo = item.key.match(/\.(mp4|webm|mov)$/i);
+                    
+                    const mediaItem = document.createElement('div');
+                    mediaItem.className = 'media-item';
+                    mediaItem.onclick = () => openLightbox(url, isVideo);
+                    
+                    if (isVideo) {
+                        mediaItem.innerHTML = `<video src="${url}" muted loop></video>`;
+                        const video = mediaItem.querySelector('video');
+                        video.addEventListener('loadedmetadata', () => {
+                            if (video.duration) {
+                                video.currentTime = video.duration / 2;
+                            }
+                        });
+                        mediaItem.addEventListener('mouseenter', () => {
+                            video.currentTime = 0;
+                            video.play();
+                        });
+                        mediaItem.addEventListener('mouseleave', () => {
+                            video.pause();
+                            if (video.duration) {
+                                video.currentTime = video.duration / 2;
+                            }
+                        });
+                    } else {
+                        mediaItem.innerHTML = `<img src="${url}" alt="Media">`;
+                    }
+                    
+                    grid.appendChild(mediaItem);
+                }
+                
+            } catch (error) {
+                console.error('Error loading media:', error);
+                grid.innerHTML = '<p style="color: #f44336; text-align: center; padding: 40px;">Error loading media</p>';
+            }
+        }
+        
+        function displayTags(data) {
+            const tagsSection = document.getElementById('tags-section');
+            let hasAnyTags = false;
+            
+            // Display software tags
+            if (data.software && data.software.length > 0) {
+                const softwareGroup = document.getElementById('software-group');
+                const softwareTags = document.getElementById('software-tags');
+                softwareTags.innerHTML = data.software.map(s => `<span class="tag">${s}</span>`).join('');
+                softwareGroup.style.display = 'block';
+                hasAnyTags = true;
+            }
+            
+            // Display equipment tags
+            if (data.equipment && data.equipment.length > 0) {
+                const equipmentGroup = document.getElementById('equipment-group');
+                const equipmentTags = document.getElementById('equipment-tags');
+                equipmentTags.innerHTML = data.equipment.map(e => `<span class="tag">${e}</span>`).join('');
+                equipmentGroup.style.display = 'block';
+                hasAnyTags = true;
+            }
+            
+            if (hasAnyTags) {
+                tagsSection.style.display = 'block';
+            }
+        }
+        
+        async function loadComments() {
+            try {
+                const docId = collectionId || username;
+                const comments = await window.db.getAll('comments', { collectionId: docId, orderBy: 'createdAt', orderDir: 'desc' });
+                
+                const commentsList = document.getElementById('comments-list');
+                commentsList.innerHTML = '';
+                
+                if (!comments || comments.length === 0) {
+                    commentsList.innerHTML = '<p style="color: #999; text-align: center;">No comments yet. Be the first to comment!</p>';
+                    return;
+                }
+                
+                comments.forEach(comment => {
+                    const commentEl = document.createElement('div');
+                    commentEl.className = 'comment';
+                    
+                    const date = comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : 'Just now';
+                    
+                    commentEl.innerHTML = `
+                        <div class="comment-author">${comment.authorName || 'Anonymous'}</div>
+                        <div class="comment-date">${date}</div>
+                        <div class="comment-text">${comment.text}</div>
+                    `;
+                    
+                    commentsList.appendChild(commentEl);
+                });
+                
+            } catch (error) {
+                console.error('Error loading comments:', error);
+            }
+        }
+        
+        // Edit description
+        document.getElementById('edit-description-btn').addEventListener('click', () => {
+            document.getElementById('description-input').value = collectionData.description || '';
+            document.getElementById('description-form').style.display = 'block';
+            document.getElementById('edit-description-btn').style.display = 'none';
+        });
+        
+        document.getElementById('cancel-description-btn').addEventListener('click', () => {
+            document.getElementById('description-form').style.display = 'none';
+            document.getElementById('edit-description-btn').style.display = 'inline-block';
+        });
+        
+        document.getElementById('save-description-btn').addEventListener('click', async () => {
+            const description = document.getElementById('description-input').value.trim();
+            const saveBtn = document.getElementById('save-description-btn');
+            
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+            
+            try {
+                const docId = collectionId || username;
+                await window.db.update('collections', docId, {
+                    description: description
+                });
+                
+                collectionData.description = description;
+                const descDiv = document.getElementById('description');
+                descDiv.textContent = description || 'No description yet.';
+                descDiv.style.color = description ? '#666' : '#999';
+                
+                document.getElementById('description-form').style.display = 'none';
+                document.getElementById('edit-description-btn').style.display = 'inline-block';
+                
+            } catch (error) {
+                console.error('Error saving description:', error);
+                alert('Error saving description');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save';
+            }
+        });
+        
+        // Submit comment
+        document.getElementById('submit-comment').addEventListener('click', async () => {
+            if (!pageUser) {
+                alert('Please sign in to comment');
+                return;
+            }
+            
+            const commentText = document.getElementById('comment-text').value.trim();
+            if (!commentText) return;
+            
+            const submitBtn = document.getElementById('submit-comment');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Posting...';
+            
+            try {
+                const docId = collectionId || username;
+                await window.db.create('comments', {
+                    collectionId: docId,
+                    text: commentText,
+                    authorId: pageUser.id,
+                    authorName: pageUser.email.split('@')[0]
+                });
+                
+                document.getElementById('comment-text').value = '';
+                loadComments();
+                
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                alert('Error posting comment');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Post Comment';
+            }
+        });
+        
+        // Lightbox functions
+        function openLightbox(url, isVideo) {
+            const lightbox = document.getElementById('lightbox');
+            const content = document.getElementById('lightbox-content');
+            
+            if (isVideo) {
+                content.innerHTML = `<video src="${url}" controls autoplay></video>`;
+            } else {
+                content.innerHTML = `<img src="${url}" alt="Media">`;
+            }
+            
+            lightbox.classList.add('active');
+        }
+        
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.getElementById('lightbox-content').innerHTML = '';
+        }
+        
+        // Close lightbox on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+        
+        loadCollection();
+    </script>
+</body>
+</html>

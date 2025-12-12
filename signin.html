@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Sidey CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 48px;
+        }
+        .logo {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #000;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 32px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 8px;
+        }
+        .btn-primary:hover {
+            background: #333;
+        }
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        .forgot-password {
+            text-align: right;
+            margin-top: 8px;
+            margin-bottom: 20px;
+        }
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+        .alt-link {
+            text-align: center;
+            margin-top: 24px;
+            color: #666;
+        }
+        .alt-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .alt-link a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 16px;
+        }
+        .back-link a {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link a:hover {
+            color: #667eea;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">sidey</div>
+        <p class="subtitle">Welcome back!</p>
+        
+        <div id="message" class="message hidden"></div>
+        
+        <form id="signin-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required placeholder="you@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter your password">
+            </div>
+            
+            <div class="forgot-password">
+                <a href="#" id="forgot-password-link">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="btn-primary" id="signin-btn">Sign In</button>
+        </form>
+        
+        <div class="alt-link">
+            Don't have an account? <a href="signup.html">Sign Up</a>
+        </div>
+        
+        <div class="back-link">
+            <a href="index.html">← Back to Home</a>
+        </div>
+    </div>
+
+    <script src="js/cloudflare-config.js"></script>
+    <script>
+        const form = document.getElementById('signin-form');
+        const messageDiv = document.getElementById('message');
+        const signinBtn = document.getElementById('signin-btn');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+
+        // Check if already logged in
+        if (auth.isAuthenticated()) {
+            window.location.href = 'dashboard.html';
+        }
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            messageDiv.classList.add('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessage();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            signinBtn.disabled = true;
+            signinBtn.textContent = 'Signing In...';
+            
+            try {
+                // Sign in user using Cloudflare API
+                await auth.signIn(email, password);
+                
+                showMessage('Sign in successful! Redirecting...', 'success');
+                
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Sign in error:', error);
+                let errorMessage = error.message || 'Failed to sign in. Please check your credentials.';
+                
+                showMessage(errorMessage, 'error');
+                signinBtn.disabled = false;
+                signinBtn.textContent = 'Sign In';
+            }
+        });
+
+        forgotPasswordLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            
+            if (!email) {
+                showMessage('Please enter your email address first', 'error');
+                return;
+            }
+            
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showMessage('Password reset email sent! Check your inbox.', 'success');
+            } catch (error) {
+                console.error('Password reset error:', error);
+                showMessage('Failed to send reset email. Please check the email address.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

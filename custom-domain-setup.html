@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Domain Setup - Sidey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .option {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .option-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .option-desc {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin: 15px 0;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .instructions-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #856404;
+        }
+        .instructions ol {
+            margin-left: 20px;
+            color: #856404;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+            color: #721c24;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .hidden {
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Custom Domain Setup</h1>
+        <p class="subtitle">Connect your own domain to your Sidey portfolio</p>
+
+        <!-- Step 1: Choose option -->
+        <div id="step-choose">
+            <div class="option" onclick="selectOption('purchase')">
+                <div class="option-title">💳 Purchase New Domain</div>
+                <div class="option-desc">Buy a new domain through Cloudflare (fully automated setup)</div>
+            </div>
+
+            <div class="option" onclick="selectOption('existing')">
+                <div class="option-title">🔗 Connect Existing Domain</div>
+                <div class="option-desc">I already own a domain and want to connect it</div>
+            </div>
+        </div>
+
+        <!-- Step 2a: Purchase domain -->
+        <div id="step-purchase" class="hidden">
+            <button onclick="backToChoose()" style="background: #6c757d; width: auto; margin-bottom: 20px;">← Back</button>
+            
+            <div class="form-group">
+                <label>Enter domain name</label>
+                <input type="text" id="purchase-domain" placeholder="myportfolio.com" />
+            </div>
+
+            <button class="btn" onclick="checkAvailability()">Check Availability</button>
+
+            <div id="availability-result" class="hidden"></div>
+            <div id="payment-section" class="hidden">
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <div id="card-element"></div>
+                </div>
+                <button class="btn" onclick="purchaseDomain()">Purchase & Setup</button>
+            </div>
+        </div>
+
+        <!-- Step 2b: Connect existing domain -->
+        <div id="step-existing" class="hidden">
+            <button onclick="backToChoose()" style="background: #6c757d; width: auto; margin-bottom: 20px;">← Back</button>
+            
+            <div class="form-group">
+                <label>Your domain name</label>
+                <input type="text" id="existing-domain" placeholder="myportfolio.com" />
+            </div>
+
+            <button class="btn" onclick="connectExistingDomain()">Connect Domain</button>
+
+            <div id="existing-result"></div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="loading" class="hidden loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px; color: #666;">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Cloudflare API & Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="js/cloudflare-config.js"></script>
+
+    <script>
+        const stripe = Stripe('pk_test_YOUR_STRIPE_PUBLISHABLE_KEY'); // Replace with your key
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        
+        let selectedOption = null;
+        let domainPrice = 0;
+
+        function selectOption(option) {
+            selectedOption = option;
+            document.getElementById('step-choose').classList.add('hidden');
+            
+            if (option === 'purchase') {
+                document.getElementById('step-purchase').classList.remove('hidden');
+                cardElement.mount('#card-element');
+            } else {
+                document.getElementById('step-existing').classList.remove('hidden');
+            }
+        }
+
+        function backToChoose() {
+            document.getElementById('step-purchase').classList.add('hidden');
+            document.getElementById('step-existing').classList.add('hidden');
+            document.getElementById('step-choose').classList.remove('hidden');
+            document.getElementById('availability-result').classList.add('hidden');
+            document.getElementById('payment-section').classList.add('hidden');
+        }
+
+        async function checkAvailability() {
+            const domain = document.getElementById('purchase-domain').value.trim().toLowerCase();
+            
+            if (!domain) {
+                alert('Please enter a domain name');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                // Call Cloudflare Worker API to check domain availability
+                const response = await fetch(`${window.API_BASE_URL}/api/domain/check-availability`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain })
+                });
+                const result = await response.json();
+
+                showLoading(false);
+
+                const resultDiv = document.getElementById('availability-result');
+                resultDiv.classList.remove('hidden');
+
+                if (result.available) {
+                    domainPrice = result.price;
+                    const priceInDollars = (domainPrice / 100).toFixed(2);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✓ ${domain} is available!</strong>
+                            <div class="price">$${priceInDollars}/year</div>
+                        </div>
+                    `;
+                    document.getElementById('payment-section').classList.remove('hidden');
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>✗ ${domain} is not available</strong>
+                            <p>Try a different domain name</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                showLoading(false);
+                alert('Error checking domain: ' + error.message);
+            }
+        }
+
+        async function purchaseDomain() {
+            const domain = document.getElementById('purchase-domain').value.trim().toLowerCase();
+            
+            showLoading(true);
+
+            try {
+                // Create payment method
+                const { error, paymentMethod } = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: cardElement,
+                });
+
+                if (error) {
+                    showLoading(false);
+                    alert('Payment error: ' + error.message);
+                    return;
+                }
+
+                // Purchase domain via Cloudflare Worker API
+                const response = await fetch(`${window.API_BASE_URL}/api/domain/purchase`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
+                    body: JSON.stringify({
+                        domain: domain,
+                        paymentMethodId: paymentMethod.id
+                    })
+                });
+                const result = await response.json();
+
+                showLoading(false);
+
+                if (result.success) {
+                    document.getElementById('payment-section').classList.add('hidden');
+                    document.getElementById('availability-result').innerHTML = `
+                        <div class="success">
+                            <strong>🎉 Success!</strong>
+                            <p>${result.message}</p>
+                            <p>Your domain <strong>${domain}</strong> is now live!</p>
+                            <button class="btn" onclick="window.location.href='dashboard.html'">Return to Dashboard</button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                showLoading(false);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function connectExistingDomain() {
+            const domain = document.getElementById('existing-domain').value.trim().toLowerCase();
+            
+            if (!domain) {
+                alert('Please enter your domain name');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                // Connect domain via Cloudflare Worker API
+                const response = await fetch(`${window.API_BASE_URL}/api/domain/connect`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
+                    body: JSON.stringify({ domain })
+                });
+                const result = await response.json();
+
+                showLoading(false);
+
+                const resultDiv = document.getElementById('existing-result');
+
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>🎉 ${result.message}</strong>
+                            <p>Your domain <strong>${domain}</strong> is now connected!</p>
+                            <button class="btn" onclick="window.location.href='dashboard.html'">Return to Dashboard</button>
+                        </div>
+                    `;
+                } else if (result.requiresManualSetup) {
+                    resultDiv.innerHTML = `
+                        <div class="instructions">
+                            <div class="instructions-title">📋 Setup Instructions</div>
+                            <ol>
+                                <li>${result.instructions.step1}</li>
+                                <li>${result.instructions.step2}</li>
+                                <li>${result.instructions.step3}</li>
+                                <li>${result.instructions.step4}</li>
+                            </ol>
+                            <p style="margin-top: 16px;">
+                                <strong>DNS Records to add in Cloudflare:</strong>
+                            </p>
+                            <div class="code">
+                                Type: CNAME<br>
+                                Name: @<br>
+                                Target: sidey.pages.dev<br>
+                                Proxy: Enabled (orange cloud)
+                            </div>
+                            <div class="code">
+                                Type: CNAME<br>
+                                Name: www<br>
+                                Target: sidey.pages.dev<br>
+                                Proxy: Enabled (orange cloud)
+                            </div>
+                            <p style="margin-top: 16px;">
+                                <strong>Worker Routes to add:</strong>
+                            </p>
+                            <div class="code">
+                                Route: ${domain}/*<br>
+                                Worker: sidey-router
+                            </div>
+                            <div class="code">
+                                Route: www.${domain}/*<br>
+                                Worker: sidey-router
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                showLoading(false);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const steps = ['step-choose', 'step-purchase', 'step-existing'];
+            
+            if (show) {
+                loading.classList.remove('hidden');
+                steps.forEach(id => document.getElementById(id).style.opacity = '0.5');
+            } else {
+                loading.classList.add('hidden');
+                steps.forEach(id => document.getElementById(id).style.opacity = '1');
+            }
+        }
+    </script>
+</body>
+</html>

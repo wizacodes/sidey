@@ -1,0 +1,31 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3078 920" width="3078" height="920">
+	<defs>
+		<linearGradient id="g1" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(436.64,0,0,398.01,61.07,217.855)">
+			<stop offset="0" stop-color="#ffe400"/>
+			<stop offset="1" stop-color="#ffe000"/>
+		</linearGradient>
+		<linearGradient id="g2" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(590.57,0,0,200.89,75.48,450.975)">
+			<stop offset="0" stop-color="#ffe400"/>
+			<stop offset="1" stop-color="#ffe000"/>
+		</linearGradient>
+		<linearGradient id="g3" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(434.46,0,0,400.39,259.78,678.505)">
+			<stop offset="0" stop-color="#ffe400"/>
+			<stop offset="1" stop-color="#ffe000"/>
+		</linearGradient>
+		<linearGradient id="g4" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-490.254,-397,344.558,-425.493,2129.127,658)">
+			<stop offset="0" stop-color="#ffe300"/>
+			<stop offset=".01" stop-color="#ffe300"/>
+			<stop offset="1" stop-color="#ffe100"/>
+		</linearGradient>
+	</defs>
+	<style>
+		.s0 { fill: url(#g1) } 
+		.s1 { fill: url(#g2) } 
+		.s2 { fill: url(#g3) } 
+		.s3 { fill: url(#g4) } 
+	</style>
+	<path id="Shape 1" fill-rule="evenodd" class="s0" d="m497.71 18.85l-59.07 185.42-377.57 212.59 62.12-187.15z"/>
+	<path id="Shape 1 copy" fill-rule="evenodd" class="s1" d="m666.05 459.11l-171.32 92.31-419.25-109.45 174.72-91.44z"/>
+	<path id="Shape 1 copy 2" fill-rule="evenodd" class="s2" d="m694.24 478.31l-58.05 185.75-376.41 214.64 61.11-187.49z"/>
+	<path id="SIDEY" class="s3" aria-label="SIDEY"  d="m1145.4 280.6v80.8q-31.4-14.1-61.3-21.2-29.9-7.2-56.4-7.2-35.3 0-52.1 9.7-16.9 9.7-16.9 30.1 0 15.4 11.2 24.1 11.5 8.4 41.4 14.5l41.9 8.4q63.6 12.8 90.4 38.9 26.9 26 26.9 74.1 0 63-37.6 94-37.3 30.6-114.2 30.6-36.2 0-72.8-6.9-36.5-6.9-73-20.4v-83q36.5 19.4 70.5 29.3 34.2 9.7 65.9 9.7 32.2 0 49.3-10.7 17.1-10.7 17.1-30.6 0-17.9-11.8-27.6-11.5-9.7-46.2-17.4l-38.1-8.4q-57.2-12.3-83.7-39.1-26.4-26.8-26.4-72.3 0-57 36.8-87.6 36.8-30.7 105.8-30.7 31.4 0 64.6 4.9 33.2 4.6 68.7 14zm190.6 369.4v-381.4h98.4v381.4zm408.6-307h-35.3v232.7h35.3q60.2 0 91.9-29.9 32-29.9 32-86.9 0-56.7-31.7-86.3-31.7-29.6-92.2-29.6zm-133.6 307v-381.4h103.7q86.8 0 129.2 12.5 42.7 12.3 73.1 41.9 26.8 25.8 39.8 59.6 13.1 33.7 13.1 76.3 0 43.2-13.1 77.2-13 33.7-39.8 59.5-30.7 29.6-73.6 42.1-42.9 12.3-128.7 12.3zm514 0v-381.4h265.4v74.4h-167.1v71h157.1v74.3h-157.1v87.4h172.7v74.3zm530.2-160.7l-145.3-220.7h107.5l86.9 135.9 86.8-135.9h107.8l-145.3 220.7v160.7h-98.4z"/>
+</svg>

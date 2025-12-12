@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Panel - Sidey CMS</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #eee; }
+    .navbar { background: #111; padding: 16px 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.5rem; font-weight: 700; }
+    .user-info { display: flex; align-items: center; gap: 20px; }
+    .user-email { color: #999; font-size: 0.9rem; }
+    .btn-logout { background: #d32f2f; color: #fff; padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .btn-logout:hover { background: #c62828; }
+    .admin-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+    .admin-section { margin-bottom: 40px; padding: 24px; background: #111; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    .admin-section h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; }
+    .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+    .form-group label { margin-bottom: 8px; font-size: 0.9rem; color: #bdbdbd; font-weight: 600; }
+    .form-group input, .form-group textarea { background: #000; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 6px; font-size: 1rem; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+    .form-group textarea { font-family: monospace; min-height: 200px; resize: vertical; }
+    button { background: #667eea; border: none; color: #fff; padding: 12px 24px; cursor: pointer; border-radius: 6px; font-weight: 600; transition: background 0.3s; }
+    button:hover { background: #5568d3; }
+    button:disabled { background: #333; cursor: not-allowed; }
+    button.danger { background: #d32f2f; }
+    button.danger:hover { background: #c62828; }
+    .posts-list { list-style: none; padding: 0; }
+    .posts-list li { padding: 16px; background: #000; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .message { padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 0.9rem; }
+    .message.success { background: rgba(76, 175, 80, 0.2); color: #81c784; border: 1px solid rgba(76, 175, 80, 0.5); }
+    .message.error { background: rgba(244, 67, 54, 0.2); color: #e57373; border: 1px solid rgba(244, 67, 54, 0.5); }
+    .loading { text-align: center; padding: 60px 20px; }
+    .spinner { border: 4px solid #333; border-top: 4px solid #667eea; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .hidden { display: none; }
+    .site-badge { background: #667eea; color: #fff; padding: 6px 12px; border-radius: 16px; font-size: 0.85rem; font-weight: 600; }
+    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-top: 20px; }
+    .image-item { position: relative; }
+    .image-item img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+    .image-item button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; font-size: 0.8rem; }
+    .back-link { display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none; }
+    .back-link:hover { text-decoration: underline; }
+    .software-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .software-btn { background: #1a1a1a; border: 2px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .software-btn:hover { border-color: #667eea; }
+    .software-btn.selected { background: #667eea; border-color: #667eea; }
+    .collection-preview { margin-top: 20px; padding: 20px; background: #000; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+    .collection-preview h3 { margin-top: 0; margin-bottom: 16px; color: #667eea; }
+    .collection-images-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .collection-images-preview img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { background: rgba(102, 126, 234, 0.2); color: #667eea; padding: 6px 12px; border-radius: 16px; font-size: 0.85rem; font-weight: 600; }
+    .collection-card { background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .collection-card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; }
+    .collection-card-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .collection-card-description { color: #999; margin-bottom: 16px; line-height: 1.6; }
+    .collection-card-media { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .collection-media-item { position: relative; }
+    .collection-media-item img, .collection-media-item video { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+    .collection-media-item button { position: absolute; top: 8px; right: 8px; padding: 4px 8px; font-size: 0.75rem; }
+    .collection-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .collection-edit-form { margin-top: 20px; padding: 20px; background: #1a1a1a; border-radius: 8px; display: none; }
+    .collection-edit-form.active { display: block; }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">sidey <span class="site-badge" id="site-badge">Loading...</span></div>
+    <div class="user-info">
+      <a href="#" id="sidey-profile-link" style="display: flex; align-items: center; text-decoration: none; margin-right: 12px;" title="View on Sidey">
+        <svg viewBox="0 0 751 886" style="width: 28px; height: 28px; fill: #FFD700;">
+          <path fill-rule="evenodd" d="m541.81 14l-75.07 179.54-394.74 178.71 78.27-180.99z"/>
+          <path fill-rule="evenodd" d="m670.96 467.31l-178.74 76.96-408.06-145.74 182.05-75.79z"/>
+          <path fill-rule="evenodd" d="m697.36 488.91l-74.09 179.95-393.76 180.86 77.29-181.42z"/>
+        </svg>
+      </a>
+      <span class="user-email" id="user-email">Loading...</span>
+      <button class="btn-logout" id="logout-btn">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- Loading State -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading admin panel...</p>
+  </div>
+
+  <!-- Admin Container -->
+  <div id="admin-container" class="admin-container hidden">
+    <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+    
+    <h1 style="margin-bottom: 32px;">Content Management</h1>
+
+    <!-- Profile Information -->
+    <div class="admin-section">
+      <h2>👤 Profile Information</h2>
+      <div id="profile-message"></div>
+      
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="profile-fullname" placeholder="Enter your full name" />
+      </div>
+
+      <div class="form-group">
+        <label>About Me</label>
+        <textarea id="profile-about" placeholder="Write about yourself, your experience, specializations..." style="min-height: 150px;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Resume (PDF)</label>
+        <input type="file" id="profile-resume" accept=".pdf" />
+        <div id="current-resume" style="margin-top: 8px; color: #999; font-size: 0.9rem;"></div>
+      </div>
+
+      <h3 style="margin: 24px 0 16px 0; font-size: 1.2rem;">Social Links</h3>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="show-instagram" style="width: auto; margin: 0;" />
+          Instagram URL
+        </label>
+        <input type="url" id="profile-instagram" placeholder="https://instagram.com/username" />
+      </div>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="show-linkedin" style="width: auto; margin: 0;" />
+          LinkedIn URL
+        </label>
+        <input type="url" id="profile-linkedin" placeholder="https://linkedin.com/in/username" />
+      </div>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="show-imdb" style="width: auto; margin: 0;" />
+          IMDb URL
+        </label>
+        <input type="url" id="profile-imdb" placeholder="https://imdb.com/name/..." />
+      </div>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="show-artstation" style="width: auto; margin: 0;" />
+          ArtStation URL
+        </label>
+        <input type="url" id="profile-artstation" placeholder="https://artstation.com/username" />
+      </div>
+
+      <button onclick="saveProfile()">Save Profile</button>
+    </div>
+
+    <!-- Create New Collection -->
+    <div class="admin-section">
+      <h2>🎨 New Collection</h2>
+      <div id="collection-message"></div>
+      
+      <div class="form-group">
+        <label>Collection Title</label>
+        <input type="text" id="collection-title" placeholder="Enter collection title" />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="collection-description" placeholder="Describe your work..." style="min-height: 120px;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Upload Images, Videos, or 3D Models</label>
+        <input type="file" id="collection-images-input" accept="image/*,video/*,.glb" multiple />
+        <small style="color: #999; font-size: 0.85rem; margin-top: 4px; display: block;">Supported: Images (JPG, PNG, etc.), Videos (MP4, WebM), 3D Models (.glb)</small>
+      </div>
+
+      <div class="form-group">
+        <label>Software Used</label>
+        <div class="software-buttons">
+          <button type="button" class="software-btn" data-software="Blender">Blender</button>
+          <button type="button" class="software-btn" data-software="Cinema 4D">Cinema 4D</button>
+          <button type="button" class="software-btn" data-software="Nuke">Nuke</button>
+          <button type="button" class="software-btn" data-software="Maya">Maya</button>
+          <button type="button" class="software-btn" data-software="Unreal Engine">Unreal Engine</button>
+          <button type="button" class="software-btn" data-software="DaVinci Resolve">DaVinci Resolve</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Camera & Lenses (comma-separated)</label>
+        <input type="text" id="collection-equipment" placeholder="e.g., Arri Alexa Mini LF, Angenieux 50mm Prime" />
+      </div>
+
+      <button onclick="createCollection()">Create Collection</button>
+
+      <div id="collection-preview" class="collection-preview hidden">
+        <h3>Preview</h3>
+        <div id="collection-preview-content"></div>
+      </div>
+    </div>
+
+    <!-- Manage Existing Collections -->
+    <div class="admin-section">
+      <h2>📚 Your Collections</h2>
+      <div id="collections-message"></div>
+      <div id="collections-list"></div>
+    </div>
+
+    <!-- Upload Gallery Image -->
+    <div class="admin-section">
+      <h2>📸 Gallery Media</h2>
+      <div id="upload-message"></div>
+      <div class="form-group">
+        <label>Upload Images or Videos to Gallery</label>
+        <input type="file" id="file-input" accept="image/*,video/*" multiple />
+      </div>
+      <button onclick="uploadImages()">Upload Media</button>
+      
+      <div id="images-grid" class="image-grid"></div>
+    </div>
+
+    <!-- Upload Background Video -->
+    <div class="admin-section">
+      <h2>🎬 Background Video</h2>
+      <div id="video-upload-message"></div>
+      <div class="form-group">
+        <label>Upload Background Showreel (MP4)</label>
+        <input type="file" id="video-file-input" accept="video/mp4" />
+      </div>
+      <button onclick="uploadBackgroundVideo()">Upload Video</button>
+      <div id="current-video" style="margin-top: 16px;"></div>
+    </div>
+
+    <!-- Upload BTS Images -->
+    <div class="admin-section">
+      <h2>🎥 Behind The Scenes</h2>
+      <div id="bts-upload-message"></div>
+      <div class="form-group">
+        <label>Upload BTS Images</label>
+        <input type="file" id="bts-file-input" accept="image/*" multiple />
+      </div>
+      <button onclick="uploadBTSImages()">Upload BTS Images</button>
+      
+      <div id="bts-images-grid" class="image-grid"></div>
+    </div>
+
+    <!-- Create Blog Post -->
+    <div class="admin-section">
+      <h2>✍️ Blog Posts</h2>
+      <div id="post-message"></div>
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="post-title" placeholder="Enter post title" />
+      </div>
+      <div class="form-group">
+        <label>Content (Markdown supported)</label>
+        <textarea id="post-content" placeholder="Write your post content here..."></textarea>
+      </div>
+      <button onclick="createPost()">Publish Post</button>
+
+      <h3 style="margin-top: 32px; margin-bottom: 16px;">Published Posts</h3>
+      <ul id="posts-list" class="posts-list"></ul>
+    </div>
+  </div>
+
+  <script src="js/cloudflare-config.js"></script>
+  <script>
+    let SITE_ID = null;
+    let pageUser = null;
+    let isPro = false;
+
+    const loadingDiv = document.getElementById('loading');
+    const adminContainer = document.getElementById('admin-container');
+    const logoutBtn = document.getElementById('logout-btn');
+    const userEmailSpan = document.getElementById('user-email');
+    const siteBadge = document.getElementById('site-badge');
+
+    let selectedSoftware = [];
+
+    // Software button selection
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.software-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const software = btn.dataset.software;
+          if (selectedSoftware.includes(software)) {
+            selectedSoftware = selectedSoftware.filter(s => s !== software);
+            btn.classList.remove('selected');
+          } else {
+            selectedSoftware.push(software);
+            btn.classList.add('selected');
+          }
+        });
+      });
+
+      // Preview collection images
+      document.getElementById('collection-images-input').addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files.length > 0) {
+          showCollectionPreview(files);
+        }
+      });
+    });
+
+    function showCollectionPreview(files) {
+      const preview = document.getElementById('collection-preview');
+      const previewContent = document.getElementById('collection-preview-content');
+      
+      preview.classList.remove('hidden');
+      
+      const imagesHTML = Array.from(files).slice(0, 6).map(file => {
+        const url = URL.createObjectURL(file);
+        return `<img src="${url}" alt="Preview" />`;
+      }).join('');
+      
+      previewContent.innerHTML = `
+        <div class="collection-images-preview">
+          ${imagesHTML}
+          ${files.length > 6 ? `<p style="color: #999;">+${files.length - 6} more</p>` : ''}
+        </div>
+        <p style="color: #999; font-size: 0.9rem;">${files.length} file(s) selected</p>
+      `;
+    }
+
+    // Check authentication and load site
+    async function initAdmin() {
+      if (!auth.isAuthenticated()) {
+        window.location.href = 'signin.html';
+        return;
+      }
+
+      pageUser = auth.getCurrentUser();
+      userEmailSpan.textContent = pageUser.email;
+
+      try {
+        SITE_ID = pageUser.siteName;
+        isPro = pageUser.isPro || false;
+        siteBadge.textContent = SITE_ID;
+        
+        // Set Sidey profile link
+        const sideyProfileLink = document.getElementById('sidey-profile-link');
+        if (sideyProfileLink) {
+          sideyProfileLink.href = `profile.html?username=${SITE_ID}`;
+        }
+
+        // Load all content
+        loadPosts();
+        loadImages();
+        loadBTSImages();
+        loadCurrentVideo();
+        loadCollections();
+        loadProfile();
+
+        loadingDiv.classList.add('hidden');
+        adminContainer.classList.remove('hidden');
+
+      } catch (error) {
+        console.error('Error loading admin panel:', error);
+        alert('Failed to load admin panel. Please try again.');
+      }
+    }
+
+    // Initialize
+    initAdmin();
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        auth.signOut();
+        window.location.href = 'index.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        alert('Failed to sign out. Please try again.');
+      }
+    });
+
+    // Profile Management
+    async function loadProfile() {
+      try {
+        const profile = await db.get('profiles', SITE_ID);
+        
+        if (profile) {
+          document.getElementById('profile-fullname').value = profile.fullName || '';
+          document.getElementById('profile-about').value = profile.about || '';
+          document.getElementById('profile-instagram').value = profile.instagram || '';
+          document.getElementById('profile-linkedin').value = profile.linkedin || '';
+          document.getElementById('profile-imdb').value = profile.imdb || '';
+          document.getElementById('profile-artstation').value = profile.artstation || '';
+          
+          document.getElementById('show-instagram').checked = profile.showInstagram || false;
+          document.getElementById('show-linkedin').checked = profile.showLinkedin || false;
+          document.getElementById('show-imdb').checked = profile.showImdb || false;
+          document.getElementById('show-artstation').checked = profile.showArtstation || false;
+          
+          if (profile.resumeUrl) {
+            document.getElementById('current-resume').innerHTML = `
+              <a href="${profile.resumeUrl}" target="_blank" style="color: #667eea;">View Current Resume</a>
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    }
+
+    async function saveProfile() {
+      const messageDiv = document.getElementById('profile-message');
+      const fullName = document.getElementById('profile-fullname').value.trim();
+      const about = document.getElementById('profile-about').value.trim();
+      
+      if (!fullName) {
+        messageDiv.innerHTML = '<div class="message error">Please enter your full name.</div>';
+        return;
+      }
+
+      try {
+        messageDiv.innerHTML = '<div class="message">Saving profile...</div>';
+
+        const profileData = {
+          fullName: fullName,
+          about: about,
+          instagram: document.getElementById('profile-instagram').value.trim(),
+          linkedin: document.getElementById('profile-linkedin').value.trim(),
+          imdb: document.getElementById('profile-imdb').value.trim(),
+          artstation: document.getElementById('profile-artstation').value.trim(),
+          showInstagram: document.getElementById('show-instagram').checked,
+          showLinkedin: document.getElementById('show-linkedin').checked,
+          showImdb: document.getElementById('show-imdb').checked,
+          showArtstation: document.getElementById('show-artstation').checked
+        };
+
+        // Handle resume upload if file is selected
+        const resumeFile = document.getElementById('profile-resume').files[0];
+        if (resumeFile) {
+          // Validate PDF
+          if (resumeFile.type !== 'application/pdf') {
+            messageDiv.innerHTML = '<div class="message error">Resume must be a PDF file.</div>';
+            return;
+          }
+          
+          // Validate file size (max 5MB)
+          if (resumeFile.size > 5 * 1024 * 1024) {
+            messageDiv.innerHTML = '<div class="message error">Resume file must be less than 5MB.</div>';
+            return;
+          }
+
+          messageDiv.innerHTML = '<div class="message">Uploading resume...</div>';
+          
+          const result = await storage.upload(`${SITE_ID}/resume/resume.pdf`, resumeFile);
+          profileData.resumeUrl = result.url;
+        }
+
+        // Save to Cloudflare D1 via API
+        await db.update('profiles', SITE_ID, profileData);
+
+        messageDiv.innerHTML = '<div class="message success">Profile saved successfully!</div>';
+        setTimeout(() => {
+          messageDiv.innerHTML = '';
+        }, 3000);
+
+        // Reload to show updated resume link
+        if (resumeFile) {
+          loadProfile();
+        }
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        messageDiv.innerHTML = '<div class="message error">Failed to save profile. Please try again.</div>';
+      }
+    }
+
+    // Validate file based on Pro status
+    function validateFile(file) {
+      const fileName = file.name.toLowerCase();
+      const fileSize = file.size;
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+      const is3DModel = fileName.endsWith('.glb') || file.type === 'model/gltf-binary';
+
+      if (isPro) {
+        // Pro limits
+        if (isImage) {
+          const allowedImageFormats = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg'];
+          const hasValidExtension = allowedImageFormats.some(ext => fileName.endsWith(ext));
+          if (!hasValidExtension) {
+            return { valid: false, error: `${file.name}: Pro users can upload jpg, png, gif, webp, bmp, tiff, svg images` };
+          }
+          if (fileSize > 10 * 1024 * 1024) {
+            return { valid: false, error: `${file.name}: Image must be less than 10MB (Pro limit)` };
+          }
+        } else if (isVideo) {
+          const allowedVideoFormats = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.wmv'];
+          const hasValidExtension = allowedVideoFormats.some(ext => fileName.endsWith(ext));
+          if (!hasValidExtension) {
+            return { valid: false, error: `${file.name}: Pro users can upload mp4, webm, mov, avi, mkv, flv, wmv videos` };
+          }
+          if (fileSize > 1024 * 1024 * 1024) {
+            return { valid: false, error: `${file.name}: Video must be less than 1GB (Pro limit)` };
+          }
+        } else if (is3DModel) {
+          if (fileSize > 50 * 1024 * 1024) {
+            return { valid: false, error: `${file.name}: 3D model must be less than 50MB (Pro limit)` };
+          }
+        }
+      } else {
+        // Non-Pro limits
+        if (is3DModel) {
+          return { valid: false, error: `${file.name}: 3D model uploads are only available for Pro users. Upgrade to Pro to upload .glb files.` };
+        }
+        if (isImage) {
+          if (!fileName.endsWith('.jpg') && !fileName.endsWith('.jpeg')) {
+            return { valid: false, error: `${file.name}: Free users can only upload JPG images. Upgrade to Pro for more formats.` };
+          }
+          if (fileSize > 1024 * 1024) {
+            return { valid: false, error: `${file.name}: Image must be less than 1MB. Upgrade to Pro for 10MB limit.` };
+          }
+        } else if (isVideo) {
+          if (!fileName.endsWith('.mp4') && !fileName.endsWith('.webm')) {
+            return { valid: false, error: `${file.name}: Free users can only upload MP4 or WebM videos. Upgrade to Pro for more formats.` };
+          }
+          if (fileSize > 100 * 1024 * 1024) {
+            return { valid: false, error: `${file.name}: Video must be less than 100MB. Upgrade to Pro for 1GB limit.` };
+          }
+        }
+      }
+
+      return { valid: true };
+    }
+
+    // Create Collection
+    async function createCollection() {
+      const title = document.getElementById('collection-title').value.trim();
+      const description = document.getElementById('collection-description').value.trim();
+      const files = document.getElementById('collection-images-input').files;
+      const equipmentInput = document.getElementById('collection-equipment').value.trim();
+
+      if (!title) {
+        showCollectionMessage('Please enter a collection title', 'error');
+        return;
+      }
+
+      if (!description) {
+        showCollectionMessage('Please enter a description', 'error');
+        return;
+      }
+
+      if (files.length === 0) {
+        showCollectionMessage('Please select at least one image or video', 'error');
+        return;
+      }
+
+      // Validate all files
+      for (let i = 0; i < files.length; i++) {
+        const validation = validateFile(files[i]);
+        if (!validation.valid) {
+          showCollectionMessage(validation.error, 'error');
+          return;
+        }
+      }
+
+      if (selectedSoftware.length === 0) {
+        showCollectionMessage('Please select at least one software', 'error');
+        return;
+      }
+
+      showCollectionMessage(`Creating collection and uploading ${files.length} file(s)...`, 'success');
+
+      try {
+        // Parse equipment tags
+        const equipment = equipmentInput 
+          ? equipmentInput.split(',').map(tag => tag.trim()).filter(tag => tag)
+          : [];
+
+        // Upload all files first using Cloudflare R2
+        const uploadPromises = Array.from(files).map(async file => {
+          const result = await storage.upload(`${SITE_ID}/uploads/${Date.now()}-${file.name}`, file);
+          return {
+            url: result.url,
+            type: file.type.startsWith('video/') ? 'video' : (file.name.endsWith('.glb') ? '3d' : 'image'),
+            filename: file.name
+          };
+        });
+
+        const uploadedMedia = await Promise.all(uploadPromises);
+
+        // Create collection via API
+        const result = await db.create('collections', {
+          title: title,
+          description: description,
+          software: selectedSoftware,
+          equipment: equipment,
+          media: uploadedMedia
+        });
+
+        showCollectionMessage('Collection created successfully!', 'success');
+        
+        // Reset form
+        document.getElementById('collection-title').value = '';
+        document.getElementById('collection-description').value = '';
+        document.getElementById('collection-images-input').value = '';
+        document.getElementById('collection-equipment').value = '';
+        document.querySelectorAll('.software-btn').forEach(btn => btn.classList.remove('selected'));
+        selectedSoftware = [];
+        document.getElementById('collection-preview').classList.add('hidden');
+
+        // Reload collections list
+        loadCollections();
+
+      } catch (error) {
+        console.error('Error creating collection:', error);
+        showCollectionMessage('Error creating collection: ' + error.message, 'error');
+      }
+    }
+
+    // Load Collections
+    async function loadCollections() {
+      const listDiv = document.getElementById('collections-list');
+      
+      try {
+        const collections = await db.getAll('collections', { 
+          where: { siteId: SITE_ID },
+          orderBy: 'createdAt',
+          orderDir: 'desc'
+        });
+
+        if (!collections || collections.length === 0) {
+          listDiv.innerHTML = '<p style="color: #999; padding: 20px;">No collections yet. Create your first collection above!</p>';
+          return;
+        }
+
+        listDiv.innerHTML = '';
+        
+        collections.forEach(collection => {
+          const collectionId = collection.id;
+          
+          const card = document.createElement('div');
+          card.className = 'collection-card';
+          card.id = `collection-${collectionId}`;
+          
+          const tagsHTML = [];
+          if (collection.software && collection.software.length > 0) {
+            tagsHTML.push(...collection.software.map(s => `<span class="tag">${s}</span>`));
+          }
+          if (collection.equipment && collection.equipment.length > 0) {
+            tagsHTML.push(...collection.equipment.map(e => `<span class="tag">${e}</span>`));
+          }
+          
+          const mediaHTML = collection.media && collection.media.length > 0
+            ? collection.media.map((m, index) => {
+                const isVideo = m.type === 'video';
+                const mediaTag = isVideo 
+                  ? `<video src="${m.url}" muted></video>`
+                  : `<img src="${m.url}" alt="Media ${index + 1}">`;
+                return `
+                  <div class="collection-media-item">
+                    ${mediaTag}
+                    <button class="danger" onclick="deleteCollectionMedia('${collectionId}', '${m.id}')">Delete</button>
+                  </div>
+                `;
+              }).join('')
+            : '<p style="color: #999;">No media</p>';
+          
+          card.innerHTML = `
+            <div class="collection-card-header">
+              <div>
+                <h3 class="collection-card-title">${collection.title || 'Untitled Collection'}</h3>
+                <p class="collection-card-description">${collection.description || 'No description'}</p>
+                ${tagsHTML.length > 0 ? `<div class="tag-list">${tagsHTML.join('')}</div>` : ''}
+              </div>
+            </div>
+            
+            <div class="collection-card-media">
+              ${mediaHTML}
+            </div>
+            
+            <div class="collection-actions">
+              <button onclick="toggleEditCollection('${collectionId}')">Edit Info</button>
+              <button class="danger" onclick="deleteCollection('${collectionId}')">Delete Collection</button>
+              <a href="collection.html?collection=${collectionId}" target="_blank" class="btn" style="display: inline-block; text-decoration: none;">View Collection</a>
+            </div>
+            
+            <div id="edit-form-${collectionId}" class="collection-edit-form">
+              <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="edit-title-${collectionId}" value="${collection.title || ''}" />
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea id="edit-description-${collectionId}">${collection.description || ''}</textarea>
+              </div>
+              <div class="btn-group">
+                <button onclick="saveCollectionEdit('${collectionId}')">Save Changes</button>
+                <button class="secondary" onclick="toggleEditCollection('${collectionId}')">Cancel</button>
+              </div>
+            </div>
+          `;
+          
+          listDiv.appendChild(card);
+        });
+        
+      } catch (error) {
+        console.error('Error loading collections:', error);
+        listDiv.innerHTML = '<p style="color: #f44336; padding: 20px;">Error loading collections</p>';
+      }
+    }
+
+    function toggleEditCollection(collectionId) {
+      const form = document.getElementById(`edit-form-${collectionId}`);
+      form.classList.toggle('active');
+    }
+
+    async function saveCollectionEdit(collectionId) {
+      const title = document.getElementById(`edit-title-${collectionId}`).value.trim();
+      const description = document.getElementById(`edit-description-${collectionId}`).value.trim();
+      
+      try {
+        await db.update('collections', collectionId, {
+          title: title,
+          description: description
+        });
+        
+        showCollectionsMessage('Collection updated successfully!', 'success');
+        loadCollections();
+        
+      } catch (error) {
+        console.error('Error updating collection:', error);
+        showCollectionsMessage('Error updating collection: ' + error.message, 'error');
+      }
+    }
+
+    async function deleteCollectionMedia(collectionId, mediaId) {
+      if (!confirm('Delete this media item?')) return;
+      
+      try {
+        // Delete media via API (this would need a specific endpoint)
+        await apiRequest(`/api/data/collection-media/${mediaId}`, { method: 'DELETE' });
+        
+        showCollectionsMessage('Media deleted', 'success');
+        loadCollections();
+        
+      } catch (error) {
+        console.error('Error deleting media:', error);
+        showCollectionsMessage('Error deleting media: ' + error.message, 'error');
+      }
+    }
+
+    async function deleteCollection(collectionId) {
+      if (!confirm('Delete this entire collection? This cannot be undone.')) return;
+      
+      try {
+        await db.delete('collections', collectionId);
+        showCollectionsMessage('Collection deleted', 'success');
+        loadCollections();
+        
+      } catch (error) {
+        console.error('Error deleting collection:', error);
+        showCollectionsMessage('Error deleting collection: ' + error.message, 'error');
+      }
+    }
+
+    // Upload Gallery Images
+    async function uploadImages() {
+      const files = document.getElementById("file-input").files;
+      if (files.length === 0) {
+        showUploadMessage("Please select at least one file", "error");
+        return;
+      }
+
+      showUploadMessage(`Uploading ${files.length} file(s)...`, "success");
+      
+      try {
+        for (const file of files) {
+          const result = await storage.upload(`${SITE_ID}/uploads/${Date.now()}-${file.name}`, file);
+          await db.create('gallery', {
+            url: result.url,
+            filename: file.name,
+            type: file.type.startsWith('video/') ? 'video' : 'image'
+          });
+        }
+        
+        showUploadMessage(`Successfully uploaded ${files.length} file(s)!`, "success");
+        document.getElementById("file-input").value = "";
+        loadImages();
+      } catch (err) {
+        showUploadMessage(err.message, "error");
+      }
+    }
+
+    // Load Gallery Images
+    async function loadImages() {
+      try {
+        const images = await db.getAll('gallery', { where: { siteId: SITE_ID } });
+        const grid = document.getElementById("images-grid");
+        
+        if (!images || images.length === 0) {
+          grid.innerHTML = "<p style='color: #999; padding: 20px;'>No images uploaded yet.</p>";
+          return;
+        }
+        
+        grid.innerHTML = images.map(img => {
+          const isVideo = img.type === 'video';
+          const mediaTag = isVideo 
+            ? `<video src="${img.url}" muted loop></video>`
+            : `<img src="${img.url}" alt="${img.filename}" />`;
+          return `
+            <div class="image-item">
+              ${mediaTag}
+              <button class="danger" onclick="deleteImage('${img.id}')">Delete</button>
+            </div>
+          `;
+        }).join("");
+      } catch (err) {
+        console.error('Error loading images:', err);
+      }
+    }
+
+    async function deleteImage(imageId) {
+      if (!confirm("Delete this image?")) return;
+      try {
+        await db.delete('gallery', imageId);
+        showUploadMessage("Image deleted", "success");
+        loadImages();
+      } catch (err) {
+        showUploadMessage(err.message, "error");
+      }
+    }
+
+    // Background Video Functions
+    async function uploadBackgroundVideo() {
+      const file = document.getElementById("video-file-input").files[0];
+      if (!file) {
+        showVideoUploadMessage("Please select a video file", "error");
+        return;
+      }
+
+      showVideoUploadMessage("Uploading video... This may take a while.", "success");
+      
+      try {
+        const result = await storage.upload(`${SITE_ID}/background/showreel.mp4`, file);
+        
+        // Store the video URL in the site settings
+        await apiRequest(`/api/data/site-settings/${SITE_ID}`, {
+          method: 'POST',
+          body: JSON.stringify({
+            backgroundVideoUrl: result.url
+          })
+        });
+        
+        showVideoUploadMessage("Video uploaded successfully!", "success");
+        document.getElementById("video-file-input").value = "";
+        loadCurrentVideo();
+      } catch (err) {
+        showVideoUploadMessage(err.message, "error");
+      }
+    }
+
+    async function loadCurrentVideo() {
+      try {
+        const settings = await apiRequest(`/api/data/site-settings/${SITE_ID}`);
+        const container = document.getElementById("current-video");
+        
+        if (settings && settings.backgroundVideoUrl) {
+          container.innerHTML = `
+            <p style="color: #81c784;">Current video: <a href="${settings.backgroundVideoUrl}" target="_blank" style="color: #667eea;">View</a></p>
+            <button class="danger" onclick="deleteBackgroundVideo()">Delete Video</button>
+          `;
+        } else {
+          container.innerHTML = "<p style='color: #999;'>No video uploaded yet.</p>";
+        }
+      } catch (err) {
+        document.getElementById("current-video").innerHTML = "<p style='color: #999;'>No video uploaded yet.</p>";
+      }
+    }
+
+    async function deleteBackgroundVideo() {
+      if (!confirm("Delete the background video?")) return;
+      
+      try {
+        await storage.delete(`${SITE_ID}/background/showreel.mp4`);
+        await apiRequest(`/api/data/site-settings/${SITE_ID}`, {
+          method: 'POST',
+          body: JSON.stringify({
+            backgroundVideoUrl: null
+          })
+        });
+        
+        showVideoUploadMessage("Video deleted", "success");
+        loadCurrentVideo();
+      } catch (err) {
+        showVideoUploadMessage(err.message, "error");
+      }
+    }
+
+    // BTS Image Functions
+    async function uploadBTSImages() {
+      const files = document.getElementById("bts-file-input").files;
+      if (files.length === 0) {
+        showBTSUploadMessage("Please select at least one image", "error");
+        return;
+      }
+
+      showBTSUploadMessage(`Uploading ${files.length} image(s)...`, "success");
+      
+      try {
+        for (const file of files) {
+          const result = await storage.upload(`${SITE_ID}/bts/${Date.now()}-${file.name}`, file);
+          await db.create('bts', {
+            url: result.url,
+            filename: file.name
+          });
+        }
+        
+        showBTSUploadMessage(`Successfully uploaded ${files.length} image(s)!`, "success");
+        document.getElementById("bts-file-input").value = "";
+        loadBTSImages();
+      } catch (err) {
+        showBTSUploadMessage(err.message, "error");
+      }
+    }
+
+    async function loadBTSImages() {
+      try {
+        const images = await db.getAll('bts', { where: { siteId: SITE_ID } });
+        const grid = document.getElementById("bts-images-grid");
+        
+        if (!images || images.length === 0) {
+          grid.innerHTML = "<p style='color: #999; padding: 20px;'>No BTS images uploaded yet.</p>";
+          return;
+        }
+        
+        grid.innerHTML = images.map(img => `
+          <div class="image-item">
+            <img src="${img.url}" alt="${img.filename}" />
+            <button class="danger" onclick="deleteBTSImage('${img.id}')">Delete</button>
+          </div>
+        `).join("");
+      } catch (err) {
+        console.error('Error loading BTS images:', err);
+      }
+    }
+
+    async function deleteBTSImage(id) {
+      if (!confirm("Delete this BTS image?")) return;
+      try {
+        await db.delete('bts', id);
+        showBTSUploadMessage("Image deleted", "success");
+        loadBTSImages();
+      } catch (err) {
+        showBTSUploadMessage(err.message, "error");
+      }
+    }
+
+    // Blog Post Functions
+    async function createPost() {
+      const title = document.getElementById("post-title").value.trim();
+      const content = document.getElementById("post-content").value.trim();
+      
+      if (!title || !content) {
+        showPostMessage("Please fill in all fields", "error");
+        return;
+      }
+
+      try {
+        await db.create('posts', {
+          title,
+          content
+        });
+        
+        showPostMessage("Post published successfully!", "success");
+        document.getElementById("post-title").value = "";
+        document.getElementById("post-content").value = "";
+        loadPosts();
+      } catch (err) {
+        showPostMessage(err.message, "error");
+      }
+    }
+
+    async function loadPosts() {
+      try {
+        const posts = await db.getAll('posts', { where: { siteId: SITE_ID } });
+        const list = document.getElementById("posts-list");
+        
+        if (!posts || posts.length === 0) {
+          list.innerHTML = "<li><small style='color: #999;'>No posts yet.</small></li>";
+          return;
+        }
+        
+        list.innerHTML = posts.map(p => `
+          <li>
+            <div>
+              <strong>${p.title}</strong><br />
+              <small style="color: #999;">${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Just now'}</small>
+            </div>
+            <button class="danger" onclick="deletePost('${p.id}')">Delete</button>
+          </li>
+        `).join("");
+      } catch (err) {
+        console.error('Error loading posts:', err);
+      }
+    }
+
+    async function deletePost(id) {
+      if (!confirm("Delete this post?")) return;
+      try {
+        await db.delete('posts', id);
+        showPostMessage("Post deleted", "success");
+        loadPosts();
+      } catch (err) {
+        showPostMessage(err.message, "error");
+      }
+    }
+
+    // Message helpers
+    function showUploadMessage(msg, type) {
+      document.getElementById("upload-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showVideoUploadMessage(msg, type) {
+      document.getElementById("video-upload-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showBTSUploadMessage(msg, type) {
+      document.getElementById("bts-upload-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showPostMessage(msg, type) {
+      document.getElementById("post-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showCollectionMessage(msg, type) {
+      document.getElementById("collection-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+    function showCollectionsMessage(msg, type) {
+      document.getElementById("collections-message").innerHTML = `<div class="message ${type}">${msg}</div>`;
+    }
+  </script>
+</body>
+</html>

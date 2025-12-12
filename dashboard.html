@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sidey CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #fff;
+            padding: 16px 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #000;
+        }
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-email {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .btn-logout {
+            background: #000;
+            color: #fff;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn-logout:hover {
+            background: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .welcome {
+            margin-bottom: 40px;
+        }
+        .welcome h1 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        .welcome p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .card-action {
+            background: #000;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .card-action:hover {
+            background: #333;
+        }
+        .card-action.secondary {
+            background: transparent;
+            border: 2px solid #000;
+            color: #000;
+        }
+        .card-action.secondary:hover {
+            background: #f5f5f5;
+        }
+        .site-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            grid-column: 1 / -1;
+        }
+        .site-info h3 {
+            color: #fff;
+        }
+        .site-info p {
+            color: rgba(255,255,255,0.9);
+        }
+        .site-url {
+            background: rgba(255,255,255,0.2);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 1.1rem;
+            word-break: break-all;
+        }
+        .site-status {
+            display: inline-block;
+            background: #4caf50;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none;
+        }
+        .template-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .welcome h1 {
+                font-size: 2rem;
+            }
+            .navbar {
+                padding: 16px 20px;
+            }
+            .user-menu {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">sidey</div>
+        <div class="user-menu">
+            <span class="user-email" id="user-email">Loading...</span>
+            <button class="btn-logout" id="logout-btn">Sign Out</button>
+        </div>
+    </nav>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading your dashboard...</p>
+    </div>
+
+    <div id="content" class="container hidden">
+        <div class="welcome">
+            <h1>Welcome back!</h1>
+            <p>Manage your creative portfolio</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Site Info Card -->
+            <div class="card site-info">
+                <span class="site-status">● Active</span>
+                <h3 id="site-title">Your Portfolio</h3>
+                <p id="site-description">Your portfolio is live and ready to showcase your work</p>
+                <div class="site-url" id="site-url">Loading...</div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="#" class="card-action" id="view-site-btn" target="_blank">View Live Site</a>
+                    <button class="card-action secondary" id="copy-url-btn">Copy URL</button>
+                </div>
+            </div>
+
+            <!-- Admin Panel Card -->
+            <div class="card">
+                <div class="card-icon">⚙️</div>
+                <h3>Admin Panel</h3>
+                <p>Manage your portfolio content, upload images, write blog posts, and customize your site.</p>
+                <a href="admin.html" class="card-action">Open Admin Panel</a>
+            </div>
+
+            <!-- Template Card -->
+            <div class="card">
+                <div class="card-icon">🎨</div>
+                <h3>Your Template</h3>
+                <p id="template-info">Loading template information...</p>
+                <button class="card-action secondary" id="change-template-btn">Change Template</button>
+            </div>
+
+            <!-- Analytics Card -->
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <h3>Site Stats</h3>
+                <p>View your portfolio analytics, visitor stats, and engagement metrics.</p>
+                <button class="card-action secondary" disabled>Coming Soon</button>
+            </div>
+
+            <!-- Custom Domain Card (Pro Only) -->
+            <div class="card" id="custom-domain-card" style="display: none;">
+                <div class="card-icon">🌐</div>
+                <div class="pro-badge">Pro Feature</div>
+                <h3>Custom Domain</h3>
+                <p style="margin-bottom: 12px;">Connect your own domain (e.g., yourdomain.com) to your portfolio</p>
+                <p style="font-size: 0.9rem; color: #888; background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 3px solid #667eea;">
+                    <strong>Setup Options:</strong><br>
+                    • <strong>Easiest:</strong> Register domain through Cloudflare (available in-app) - automatic setup!<br>
+                    • <strong>Own domain:</strong> Point nameservers to Cloudflare or add CNAME record<br>
+                    • <strong>Subdomain:</strong> Use myportfolio.otherwebsite.com (no Cloudflare needed)
+                </p>
+                <div id="custom-domain-display" style="display: none;">
+                    <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin: 12px 0; font-family: monospace; font-size: 0.9rem; word-break: break-all;" id="current-custom-domain"></div>
+                    <button class="card-action secondary" id="change-domain-btn">Change Domain</button>
+                    <a href="custom-domain-guide.html" target="_blank" class="card-action secondary" style="display: inline-block; text-align: center; text-decoration: none; margin-top: 8px;">📖 View Setup Guide</a>
+                </div>
+                <div id="custom-domain-setup" style="display: none;">
+                    <input type="text" id="custom-domain-input" placeholder="yourdomain.com" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin: 12px 0; font-size: 0.95rem;">
+                    <button class="card-action" id="save-domain-btn">Save Domain</button>
+                    <button class="card-action secondary" id="cancel-domain-btn" style="margin-top: 8px;">Cancel</button>
+                    <a href="custom-domain-guide.html" target="_blank" class="card-action secondary" style="display: inline-block; text-align: center; text-decoration: none; margin-top: 8px;">📖 View Setup Guide</a>
+                </div>
+                <button class="card-action" id="add-domain-btn">Add Custom Domain</button>
+                <a href="custom-domain-guide.html" target="_blank" class="card-action secondary" style="display: inline-block; text-align: center; text-decoration: none; margin-top: 8px;">📖 View Setup Guide</a>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="card">
+                <div class="card-icon">🔧</div>
+                <h3>Account Settings</h3>
+                <p>Update your email, password, and account preferences.</p>
+                <button class="card-action secondary" id="settings-btn">Settings</button>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card">
+                <div class="card-icon">💬</div>
+                <h3>Help & Support</h3>
+                <p>Need help? Check out our documentation or contact support.</p>
+                <a href="#" class="card-action secondary">View Docs</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/cloudflare-config.js"></script>
+    <script>
+        let dashboardUser = null;
+        let userData = null;
+        let siteData = null;
+
+        const loadingDiv = document.getElementById('loading');
+        const contentDiv = document.getElementById('content');
+        const userEmailSpan = document.getElementById('user-email');
+        const logoutBtn = document.getElementById('logout-btn');
+        const siteUrlDiv = document.getElementById('site-url');
+        const viewSiteBtn = document.getElementById('view-site-btn');
+        const copyUrlBtn = document.getElementById('copy-url-btn');
+        const templateInfo = document.getElementById('template-info');
+        const changeTemplateBtn = document.getElementById('change-template-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const siteTitle = document.getElementById('site-title');
+
+        // Check authentication using Cloudflare auth
+        async function checkAuth() {
+            if (!auth.isAuthenticated()) {
+                window.location.href = 'signin.html';
+                return;
+            }
+
+            dashboardUser = auth.getCurrentUser();
+            userEmailSpan.textContent = dashboardUser.email;
+
+            try {
+                // Get user data (already available from auth)
+                userData = dashboardUser;
+
+                // Get site data from Cloudflare API
+                siteData = await db.get('sites', userData.siteName);
+                
+                if (!siteData) {
+                    alert('Site data not found. Please contact support.');
+                    auth.signOut();
+                    window.location.href = 'signin.html';
+                    return;
+                }
+
+                // Check if template needs to be selected
+                if (!siteData.template) {
+                    window.location.href = 'choose-template.html';
+                    return;
+                }
+
+                // Update UI
+                updateDashboard();
+
+                loadingDiv.classList.add('hidden');
+                contentDiv.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                alert('Failed to load dashboard. Please try again.');
+            }
+        }
+
+        // Initialize
+        checkAuth();
+
+        function updateDashboard() {
+            // Update site title
+            siteTitle.textContent = `${userData.siteName}'s Portfolio`;
+
+            // Update site URL - show subdomain for Pro users, path for free users
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const isPro = userData.isPro || false;
+            
+            let baseUrl, siteUrl;
+            if (isLocalhost) {
+                baseUrl = `http://${window.location.host}`;
+                siteUrl = `${baseUrl}/${userData.siteName}`;
+            } else {
+                // Show subdomain for Pro users
+                if (isPro) {
+                    siteUrl = `https://${userData.siteName}.sidey.app`;
+                } else {
+                    siteUrl = `https://sidey.app/${userData.siteName}`;
+                }
+            }
+            
+            // If user has custom domain, show that instead
+            if (userData.customDomain) {
+                siteUrlDiv.innerHTML = `
+                    <div style="margin-bottom: 8px;">${siteUrl}</div>
+                    <div style="font-weight: 600; color: #667eea;">Custom: ${userData.customDomain}</div>
+                `;
+                viewSiteBtn.href = `https://${userData.customDomain}`;
+            } else {
+                siteUrlDiv.textContent = siteUrl;
+                viewSiteBtn.href = siteUrl;
+            }
+
+            // Update template info
+            const templateName = siteData.template.charAt(0).toUpperCase() + siteData.template.slice(1);
+            templateInfo.textContent = `You're using the ${templateName} template. Switch to a different template to change your portfolio's look and feel.`;
+            
+            // Show custom domain card for Pro users
+            if (isPro) {
+                const customDomainCard = document.getElementById('custom-domain-card');
+                customDomainCard.style.display = 'block';
+                
+                if (userData.customDomain) {
+                    // Show current domain
+                    document.getElementById('custom-domain-display').style.display = 'block';
+                    document.getElementById('current-custom-domain').textContent = userData.customDomain;
+                    document.getElementById('add-domain-btn').style.display = 'none';
+                } else {
+                    // Show add button
+                    document.getElementById('custom-domain-display').style.display = 'none';
+                    document.getElementById('add-domain-btn').style.display = 'block';
+                }
+            }
+        }
+
+        // Logout
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                auth.signOut();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Failed to sign out. Please try again.');
+            }
+        });
+
+        // Copy URL
+        copyUrlBtn.addEventListener('click', () => {
+            const url = siteUrlDiv.textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                copyUrlBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyUrlBtn.textContent = 'Copy URL';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy URL');
+            });
+        });
+
+        // Change template
+        if (changeTemplateBtn) {
+            changeTemplateBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to change your template? This will not delete your content.')) {
+                    window.location.href = 'choose-template.html?change=true';
+                }
+            });
+        }
+
+        // Settings (placeholder)
+        settingsBtn.addEventListener('click', () => {
+            alert('Account settings coming soon!');
+        });
+        
+        // Custom Domain Functions
+        const addDomainBtn = document.getElementById('add-domain-btn');
+        const changeDomainBtn = document.getElementById('change-domain-btn');
+        const saveDomainBtn = document.getElementById('save-domain-btn');
+        const cancelDomainBtn = document.getElementById('cancel-domain-btn');
+        const customDomainInput = document.getElementById('custom-domain-input');
+        const customDomainSetup = document.getElementById('custom-domain-setup');
+        const customDomainDisplay = document.getElementById('custom-domain-display');
+        
+        if (addDomainBtn) {
+            addDomainBtn.addEventListener('click', () => {
+                // Redirect to connect domain page
+                window.location.href = 'connect-domain.html';
+            });
+        }
+        
+        if (changeDomainBtn) {
+            changeDomainBtn.addEventListener('click', () => {
+                customDomainInput.value = userData.customDomain || '';
+                customDomainDisplay.style.display = 'none';
+                customDomainSetup.style.display = 'block';
+            });
+        }
+        
+        if (cancelDomainBtn) {
+            cancelDomainBtn.addEventListener('click', () => {
+                customDomainSetup.style.display = 'none';
+                if (userData.customDomain) {
+                    customDomainDisplay.style.display = 'block';
+                } else {
+                    addDomainBtn.style.display = 'block';
+                }
+                customDomainInput.value = '';
+            });
+        }
+        
+        if (saveDomainBtn) {
+            saveDomainBtn.addEventListener('click', async () => {
+                const domain = customDomainInput.value.trim().toLowerCase();
+                
+                // Basic validation
+                if (!domain) {
+                    alert('Please enter a domain');
+                    return;
+                }
+                
+                // Remove http/https and trailing slash
+                const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+                
+                if (!cleanDomain.includes('.')) {
+                    alert('Please enter a valid domain (e.g., yourdomain.com)');
+                    return;
+                }
+                
+                try {
+                    saveDomainBtn.disabled = true;
+                    saveDomainBtn.textContent = 'Saving...';
+                    
+                    // Save to user and site using Cloudflare API
+                    await db.update('users', dashboardUser.id, { customDomain: cleanDomain });
+                    await db.update('sites', userData.siteName, { customDomain: cleanDomain });
+                    
+                    userData.customDomain = cleanDomain;
+                    
+                    // Show setup instructions
+                    showDomainInstructions(cleanDomain);
+                    
+                    // Update display
+                    customDomainSetup.style.display = 'none';
+                    customDomainDisplay.style.display = 'block';
+                    document.getElementById('current-custom-domain').textContent = cleanDomain;
+                    updateDashboard();
+                    
+                    saveDomainBtn.disabled = false;
+                    saveDomainBtn.textContent = 'Save Domain';
+                    
+                } catch (error) {
+                    console.error('Error saving domain:', error);
+                    alert('Failed to save domain. Please try again.');
+                    saveDomainBtn.disabled = false;
+                    saveDomainBtn.textContent = 'Save Domain';
+                }
+            });
+        }
+        
+        function showDomainInstructions(domain) {
+            // Open the comprehensive setup guide in a new tab
+            window.open('custom-domain-guide.html', '_blank');
+        }
+    </script>
+</body>
+</html>

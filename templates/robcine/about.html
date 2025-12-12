@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body { background: #000; color: #fff; }
+    .about-container { max-width: 1400px; margin: 0 auto; padding: 120px 48px 48px 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    .about-text { padding: 32px 0; }
+    .about-text h1 { margin-top: 0; margin-bottom: 32px; }
+    .about-text p { color: #fff; line-height: 1.8; margin-bottom: 16px; }
+    .bts-gallery { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .bts-image { width: 100%; height: auto; object-fit: cover; border-radius: 4px; cursor: pointer; }
+    .bts-image:hover { opacity: 0.8; }
+    @media (max-width: 768px) {
+      .about-container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav style="position: fixed; top: 48px; right: 48px; z-index: 50; display: flex; gap: 16px;">
+    <a href="index.html" style="color: #eaeaea; text-decoration: none; font-size: 0.9rem;">Home</a>
+    <a href="about.html" style="color: #fff; text-decoration: none; font-size: 0.9rem;">About</a>
+    <a href="rental.html" style="color: #eaeaea; text-decoration: none; font-size: 0.9rem;">Rental</a>
+    <a href="hire.html" style="color: #eaeaea; text-decoration: none; font-size: 0.9rem;">Hire Me</a>
+  </nav>
+
+  <div class="about-container">
+    <div class="about-text">
+      <h1>About</h1>
+      <div id="about-content">
+        <p>Add your bio and story in the dashboard settings.</p>
+      </div>
+    </div>
+
+    <div id="bts-gallery" class="bts-gallery"></div>
+  </div>
+
+  <script src="../../js/cloudflare-config.js"></script>
+  
+  <script>
+    // Get site name from URL or window
+    const urlParams = new URLSearchParams(window.location.search);
+    const SITE_NAME = urlParams.get('siteName') || window.SITE_NAME_FROM_WORKER || window.SITE_NAME || 'demo';
+    
+    // Load BTS images
+    async function loadBTSImages() {
+      try {
+        const images = await db.getAll('bts', { siteId: SITE_NAME, orderBy: 'createdAt', orderDir: 'desc' });
+        const gallery = document.getElementById('bts-gallery');
+        gallery.innerHTML = '';
+
+        if (images.length === 0) {
+          gallery.innerHTML = '<p style="color: #bdbdbd; text-align: center; padding: 48px;">No BTS images yet.</p>';
+          return;
+        }
+
+        images.forEach(data => {
+          const img = document.createElement('img');
+          img.src = data.url;
+          img.alt = data.filename || 'BTS Image';
+          img.className = 'bts-image';
+          img.onclick = () => window.open(data.url, '_blank');
+          gallery.appendChild(img);
+        });
+      } catch (error) {
+        console.error('Error loading BTS images:', error);
+      }
+    }
+
+    // Load images on page load
+    loadBTSImages();
+  </script>
+  <script src="js/background-video.js"></script>
+</body>
+</html>

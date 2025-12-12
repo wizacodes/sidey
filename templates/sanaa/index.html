@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sanaa Bat-Erdene 3D Animator</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    #blog-search::placeholder {
+      color: rgba(0, 0, 0, 0.5);
+      font-style: italic;
+      opacity: 1;
+    }
+    #blog-search:focus {
+      outline: none;
+    }
+    .header-nav {
+      position: fixed;
+      top: 32px;
+      left: 48px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .header-nav a {
+      color: #000;
+      text-decoration: none;
+      font-size: 14px;
+      transition: opacity 0.2s;
+    }
+    .header-nav a:hover {
+      opacity: 0.5;
+    }
+    .social-icons {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .social-icons a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+    }
+    .social-icons svg {
+      width: 20px;
+      height: 20px;
+      fill: #000;
+      transition: opacity 0.2s;
+    }
+    .social-icons a:hover svg {
+      opacity: 0.7;
+    }
+  </style>
+  
+  <!-- Import map for THREE.js modules -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="site">
+    <section class="hero">
+      <div class="hero-content">
+        <div id="viewer3d" style="width: 100%; max-width: 300px; aspect-ratio: 1; border-radius: 6px; overflow: visible; background-color: #ffffff; cursor: grab; margin-bottom: 24px; transition: transform 0.3s ease; position: relative;"></div>
+        
+        <nav class="header-nav" style="position: static; margin-bottom: 32px;">
+          <a href="resume.html" id="resume-link">Resume</a>
+          <a href="mailto:contact@example.com" id="contact-link">Contact Me</a>
+          <div class="social-icons" id="social-icons">
+            <!-- Social icons will be loaded dynamically -->
+          </div>
+        </nav>
+        <h1 id="profile-name">Loading...</h1>
+        <p id="profile-about">
+          Loading profile...
+        </p>
+      </div>
+      <div id="gallery" class="gallery" aria-live="polite"></div>
+    </section>
+
+    <section class="blog-section">
+      
+      <div id="blog-container"></div>
+    </section>
+  </main>
+
+  <div id="lightbox" class="lightbox hidden" aria-hidden="true">
+    <button id="lb-close" class="lb-close" aria-label="Close">✕</button>
+    <button id="lb-prev" class="lb-nav lb-prev" aria-label="Previous">◀</button>
+    <div style="display: flex; flex-direction: column; align-items: center; max-width: 90vw; margin: 0 auto;">
+      <div class="lb-content">
+        <img id="lb-img" src="" alt="" style="display:none;" />
+        <video id="lb-video" controls style="display:none; max-width:100%; max-height:70vh; border-radius:4px;">
+          <source id="lb-video-source" src="" type="">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div id="lb-info" style="margin-top: 16px; color: #fff; max-width: 800px; text-align: left; width: 100%;">
+        <h3 id="lb-title" style="margin: 0 0 6px 0; color: #757575; font-size: 1.1rem; font-weight: 500;"></h3>
+        <div id="lb-tags" style="color: #9e9e9e; font-size: 0.85rem; margin-bottom: 8px;"></div>
+        <p id="lb-description" style="margin: 0; color: #bdbdbd; font-size: 0.95rem; line-height: 1.5;"></p>
+      </div>
+    </div>
+    <button id="lb-next" class="lb-nav lb-next" aria-label="Next">▶</button>
+  </div>
+
+  <footer id="sidey-footer" style="display: none; text-align: center; padding: 32px 20px; color: #999; font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 60px;">
+    <p style="margin: 0;">
+      Made with <a href="../../index.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Sidey</a>
+    </p>
+  </footer>
+
+  <script src="../../js/cloudflare-config.js"></script>
+  <script src="js/main.js"></script>
+  
+  <!-- Three.js for 3D viewer -->
+  <script type="module" src="js/three-loader.js"></script>
+  
+  <script src="js/gallery.js"></script>
+  <script src="js/blog.js"></script>
+  <script src="js/background-video.js"></script>
+  
+  <script>
+    // Load profile data
+    async function loadProfileData() {
+      try {
+        // Get siteName from URL parameter or window.SITE_NAME
+        const urlParams = new URLSearchParams(window.location.search);
+        const siteName = urlParams.get('siteName') || window.SITE_NAME || 'demo';
+        window.SITE_NAME = siteName;
+        
+        const profile = await window.db.get('profiles', siteName);
+        
+        // Check if user is Pro
+        const users = await window.db.getAll('users', { siteName: siteName });
+        let isPro = false;
+        
+        if (users && users.length > 0) {
+          isPro = users[0].isPro || false;
+        }
+        
+        // Show footer only for non-Pro users
+        const footer = document.getElementById('sidey-footer');
+        if (footer && !isPro) {
+          footer.style.display = 'block';
+        }
+
+        if (profile) {
+          // Update name and about
+          const nameEl = document.getElementById('profile-name');
+          const aboutEl = document.getElementById('profile-about');
+          
+          if (nameEl) nameEl.textContent = profile.fullName || 'Portfolio';
+          if (aboutEl) {
+            // Replace newlines with <br> tags
+            aboutEl.innerHTML = (profile.about || '').replace(/\n/g, '<br>');
+          }
+
+          // Update resume link
+          const resumeLink = document.getElementById('resume-link');
+          if (resumeLink && profile.resumeUrl) {
+            resumeLink.href = profile.resumeUrl;
+            resumeLink.target = '_blank';
+          } else if (resumeLink) {
+            resumeLink.style.display = 'none';
+          }
+
+          // Update social icons
+          const socialIcons = document.getElementById('social-icons');
+          if (socialIcons) {
+            socialIcons.innerHTML = '';
+            
+            // Add Sidey profile link
+            socialIcons.innerHTML += `
+              <a href="../../index.html#profile/${siteName}" aria-label="Sidey Profile" title="View on Sidey">
+                <svg viewBox="0 0 751 886" style="width: 24px; height: 24px; fill: #FFD700;">
+                  <path fill-rule="evenodd" d="m541.81 14l-75.07 179.54-394.74 178.71 78.27-180.99z"/>
+                  <path fill-rule="evenodd" d="m670.96 467.31l-178.74 76.96-408.06-145.74 182.05-75.79z"/>
+                  <path fill-rule="evenodd" d="m697.36 488.91l-74.09 179.95-393.76 180.86 77.29-181.42z"/>
+                </svg>
+              </a>
+            `;
+            
+            if (profile.showInstagram && profile.instagram) {
+              socialIcons.innerHTML += `
+                <a href="${profile.instagram}" target="_blank" aria-label="Instagram">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg" alt="Instagram" style="width: 24px; height: 24px;">
+                </a>
+              `;
+            }
+            
+            if (profile.showLinkedin && profile.linkedin) {
+              socialIcons.innerHTML += `
+                <a href="${profile.linkedin}" target="_blank" aria-label="LinkedIn">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg" alt="LinkedIn" style="width: 24px; height: 24px;">
+                </a>
+              `;
+            }
+            
+            if (profile.showImdb && profile.imdb) {
+              socialIcons.innerHTML += `
+                <a href="${profile.imdb}" target="_blank" aria-label="IMDb">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" alt="IMDb" style="width: 32px; height: auto;">
+                </a>
+              `;
+            }
+            
+            if (profile.showArtstation && profile.artstation) {
+              socialIcons.innerHTML += `
+                <a href="${profile.artstation}" target="_blank" aria-label="ArtStation">
+                  <svg viewBox="0 0 24 24" style="width: 24px; height: 24px;">
+                    <path d="M0 17.723l2.027 3.505h.001a2.424 2.424 0 0 0 2.164 1.333h13.457l-2.792-4.838H0zm24 .025c0-.484-.143-.935-.388-1.314L15.728 2.728a2.424 2.424 0 0 0-2.142-1.289H9.419L21.598 22.54l1.92-3.325c.378-.637.482-.919.482-1.467zM2.143 16.512L12.041 1.472 3.041 16.512H2.143z" fill="currentColor"/>
+                  </svg>
+                </a>
+              `;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    }
+
+    // Load profile on page load
+    document.addEventListener('DOMContentLoaded', loadProfileData);
+
+    // Add hover effect to 3D viewer
+    document.addEventListener('DOMContentLoaded', () => {
+      const viewer = document.getElementById('viewer3d');
+      if (viewer) {
+        viewer.addEventListener('mouseenter', () => {
+          viewer.style.transform = 'scale(1.15)';
+          viewer.style.zIndex = '10';
+        });
+        viewer.addEventListener('mouseleave', () => {
+          viewer.style.transform = 'scale(1)';
+          viewer.style.zIndex = '1';
+        });
+      }
+    });
+  </script>
+</body>
+</html>

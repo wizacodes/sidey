@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Domain Setup Guide - Sidey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        .container {
+            max-width: 900px;
+            margin: -30px auto 60px;
+            padding: 0 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge.recommended {
+            background: #10b981;
+        }
+        .step {
+            margin: 25px 0;
+            padding-left: 50px;
+            position: relative;
+        }
+        .step-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .step-desc {
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .code-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .code-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        .code-value {
+            font-size: 1rem;
+            color: #333;
+            line-height: 1.8;
+        }
+        .link-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .link-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .info-box {
+            background: #e8f4ff;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box strong {
+            color: #667eea;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #856404;
+        }
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #155724;
+        }
+        .divider {
+            text-align: center;
+            margin: 40px 0;
+            font-weight: 600;
+            color: #999;
+            position: relative;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #ddd;
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+        .screenshot-placeholder {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌐 Custom Domain Setup Guide</h1>
+        <p>Connect your own domain to your Sidey portfolio in minutes</p>
+    </div>
+
+    <div class="container">
+        <!-- Option 1: Cloudflare Domain -->
+        <div class="card">
+            <div class="card-title">
+                <span>Option 1: Domain Purchased in Cloudflare</span>
+                <span class="badge recommended">Recommended</span>
+            </div>
+            
+            <div class="info-box">
+                <strong>✨ Easiest setup!</strong> If you buy your domain through Cloudflare, setup takes just 2 minutes.
+            </div>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-title">Create Cloudflare Account</div>
+                <div class="step-desc">
+                    Sign up for a free account at Cloudflare (no credit card required for basic features)
+                </div>
+                <a href="https://dash.cloudflare.com/sign-up" target="_blank" class="link-button">
+                    Sign Up to Cloudflare →
+                </a>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-title">Purchase Your Domain</div>
+                <div class="step-desc">
+                    Go to Domain Registration and search for your desired domain (e.g., myportfolio.com)
+                </div>
+                <a href="https://dash.cloudflare.com/domains/register" target="_blank" class="link-button">
+                    Register Domain →
+                </a>
+                <div class="info-box" style="margin-top: 16px;">
+                    <strong>💰 Pro Tip:</strong> Cloudflare sells domains at wholesale cost (no markup). Most domains are $10-15/year.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-title">Add DNS Records</div>
+                <div class="step-desc">
+                    In Cloudflare, go to your domain → DNS → Records. Add these two CNAME records:
+                </div>
+                
+                <div class="code-box">
+                    <div class="code-label">Record #1 (Root Domain):</div>
+                    <div class="code-value">
+                        <strong>Type:</strong> CNAME<br>
+                        <strong>Name:</strong> @ <span style="color: #999;">(or your domain name)</span><br>
+                        <strong>Target:</strong> sideycms.web.app<br>
+                        <strong>Proxy status:</strong> Proxied <span style="color: #f97316;">(🟠 Orange cloud)</span><br>
+                        <strong>TTL:</strong> Auto
+                    </div>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-label">Record #2 (www subdomain):</div>
+                    <div class="code-value">
+                        <strong>Type:</strong> CNAME<br>
+                        <strong>Name:</strong> www<br>
+                        <strong>Target:</strong> sideycms.web.app<br>
+                        <strong>Proxy status:</strong> Proxied <span style="color: #f97316;">(🟠 Orange cloud)</span><br>
+                        <strong>TTL:</strong> Auto
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Important:</strong> Make sure the orange cloud is ON (Proxied). This is required for routing to work properly.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-title">Enter Domain in Sidey Dashboard</div>
+                <div class="step-desc">
+                    Go to your Sidey dashboard and enter your domain in the Custom Domain section. Then contact support to complete the setup.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-title">Wait for Activation</div>
+                <div class="step-desc">
+                    Your domain will be activated within a few minutes. You'll receive a confirmation email when it's ready!
+                </div>
+            </div>
+
+            <div class="success-box">
+                <strong>🎉 That's it!</strong> Your portfolio will be live at your custom domain with free SSL certificate included.
+            </div>
+        </div>
+
+        <div class="divider">OR</div>
+
+        <!-- Option 2: External Domain -->
+        <div class="card">
+            <div class="card-title">
+                <span>Option 2: Domain from Another Registrar</span>
+                <span class="badge">Namecheap, GoDaddy, etc.</span>
+            </div>
+            
+            <div class="info-box">
+                <strong>📋 Already own a domain?</strong> You can use it with Sidey by changing your nameservers to Cloudflare.
+            </div>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-title">Create Free Cloudflare Account</div>
+                <div class="step-desc">
+                    Sign up at Cloudflare (required for routing, even if your domain is elsewhere)
+                </div>
+                <a href="https://dash.cloudflare.com/sign-up" target="_blank" class="link-button">
+                    Sign Up to Cloudflare →
+                </a>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-title">Add Your Domain to Cloudflare</div>
+                <div class="step-desc">
+                    In Cloudflare dashboard, click "Add a Site" and enter your existing domain name
+                </div>
+                <a href="https://dash.cloudflare.com/" target="_blank" class="link-button">
+                    Open Cloudflare Dashboard →
+                </a>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-title">Get Cloudflare Nameservers</div>
+                <div class="step-desc">
+                    Cloudflare will show you two nameservers that look like this:
+                </div>
+                <div class="code-box">
+                    <div class="code-value">
+                        <strong>Nameserver 1:</strong> ada.ns.cloudflare.com<br>
+                        <strong>Nameserver 2:</strong> baker.ns.cloudflare.com
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>📝 Note:</strong> Your nameservers will be different. Copy the exact ones Cloudflare gives you.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-title">Update Nameservers at Your Registrar</div>
+                <div class="step-desc">
+                    Log in to where you bought your domain (Namecheap, GoDaddy, etc.) and change the nameservers:
+                </div>
+                
+                <div class="code-box">
+                    <div class="code-label">Common Registrar Instructions:</div>
+                    <div class="code-value">
+                        <strong>Namecheap:</strong> Dashboard → Domain List → Manage → Nameservers → Custom DNS<br>
+                        <strong>GoDaddy:</strong> My Products → Domains → Manage → Nameservers → Change<br>
+                        <strong>Google Domains:</strong> My Domains → DNS → Name servers → Custom name servers<br>
+                        <strong>Porkbun:</strong> Domain Management → Authoritative Nameservers
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⏰ Nameserver changes take 24-48 hours to propagate worldwide.</strong> Don't worry if it doesn't work immediately!
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-title">Wait for DNS Propagation</div>
+                <div class="step-desc">
+                    Wait for Cloudflare to detect the nameserver change. You'll get an email when it's active (usually 1-24 hours).
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">6</div>
+                <div class="step-title">Add DNS Records in Cloudflare</div>
+                <div class="step-desc">
+                    Once active, go to Cloudflare → Your Domain → DNS → Records and add the same CNAME records as Option 1:
+                </div>
+                
+                <div class="code-box">
+                    <div class="code-label">Add These Two Records:</div>
+                    <div class="code-value">
+                        <strong>Record 1:</strong> Type=CNAME, Name=@, Target=sideycms.web.app, Proxied=ON<br>
+                        <strong>Record 2:</strong> Type=CNAME, Name=www, Target=sideycms.web.app, Proxied=ON
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">7</div>
+                <div class="step-title">Enter Domain in Sidey Dashboard</div>
+                <div class="step-desc">
+                    Go to your Sidey dashboard and enter your domain in the Custom Domain section. Then contact support to complete the setup.
+                </div>
+            </div>
+
+            <div class="success-box">
+                <strong>✅ All Done!</strong> Your portfolio will be live at your domain with SSL certificate within a few hours.
+            </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="card">
+            <div class="card-title">🔧 Troubleshooting</div>
+            
+            <div style="margin: 20px 0;">
+                <strong style="color: #667eea;">Q: My domain isn't working after setup</strong>
+                <p style="margin: 8px 0 0 0; color: #666;">
+                    DNS changes take time to propagate (up to 48 hours). Try clearing your browser cache or testing in incognito mode.
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <strong style="color: #667eea;">Q: I see "DNS_PROBE_FINISHED_NXDOMAIN" error</strong>
+                <p style="margin: 8px 0 0 0; color: #666;">
+                    This means DNS records haven't propagated yet. Wait a few hours and try again.
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <strong style="color: #667eea;">Q: I see "ERR_SSL_VERSION_OR_CIPHER_MISMATCH"</strong>
+                <p style="margin: 8px 0 0 0; color: #666;">
+                    SSL certificate is still being provisioned. This usually takes 15-30 minutes after DNS is active.
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <strong style="color: #667eea;">Q: Can I use a subdomain like portfolio.mydomain.com?</strong>
+                <p style="margin: 8px 0 0 0; color: #666;">
+                    Yes! Just use "portfolio" instead of "@" in the CNAME record name field.
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <strong style="color: #667eea;">Q: Do I need to keep paying my old registrar?</strong>
+                <p style="margin: 8px 0 0 0; color: #666;">
+                    Yes, if you're using Option 2. Cloudflare just manages the DNS, you still own the domain at your registrar.
+                </p>
+            </div>
+        </div>
+
+        <!-- Need Help -->
+        <div class="card" style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 style="margin-bottom: 16px;">Need Help?</h2>
+            <p style="margin-bottom: 24px; opacity: 0.95;">
+                Having trouble setting up your domain? We're here to help!
+            </p>
+            <a href="mailto:support@sidey.app" class="link-button" style="background: white; color: #667eea;">
+                Contact Support
+            </a>
+        </div>
+    </div>
+</body>
+</html>

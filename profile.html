@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Sidey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #000;
+            --bg-secondary: #111;
+            --text-primary: #fff;
+            --text-secondary: #999;
+            --text-muted: #666;
+            --border-color: rgba(255,255,255,0.1);
+            --card-bg: #1a1a1a;
+            --shadow: rgba(0,0,0,0.3);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #fff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #000;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --border-color: rgba(0,0,0,0.1);
+            --card-bg: #fff;
+            --shadow: rgba(0,0,0,0.1);
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Inter', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding-top: 80px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: var(--bg-primary);
+            padding: 10px 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s;
+        }
+        .nav-logo {
+            height: 40px;
+            width: auto;
+            flex-shrink: 0;
+            transition: filter 0.3s;
+            cursor: pointer;
+        }
+        [data-theme="dark"] .nav-logo {
+            filter: invert(1);
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: auto;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .btn {
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 8px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+        
+        .profile-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+        
+        .profile-collections {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .profile-sidebar {
+            width: 400px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 100px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+        }
+        
+        .profile-header {
+            margin-bottom: 32px;
+        }
+        
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+        
+        .profile-username {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .pro-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+        
+        .profile-about {
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            white-space: pre-wrap;
+        }
+        
+        .profile-social {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        
+        .profile-social a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .profile-social a:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-primary);
+        }
+        
+        .profile-social img, .profile-social svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .profile-resume-btn {
+            display: inline-block;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: opacity 0.3s;
+            margin-bottom: 12px;
+        }
+        
+        .profile-resume-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .profile-portfolio-btn {
+            display: inline-block;
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .profile-portfolio-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            aspect-ratio: 16/9;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px var(--shadow);
+        }
+        
+        .content-card.square { aspect-ratio: 1; }
+        .content-card.wide { aspect-ratio: 21/9; }
+        .content-card.tall { aspect-ratio: 9/16; }
+        
+        .content-media {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .content-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            color: #fff;
+        }
+        
+        .content-username {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        
+        .content-software {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--text-primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state h2 {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        
+        @media (max-width: 1024px) {
+            .profile-container {
+                flex-direction: column;
+            }
+            
+            .profile-sidebar {
+                width: 100%;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <img src="sideylogomark.svg" alt="Sidey" class="nav-logo" onclick="window.location.href='index.html'">
+        <div class="nav-buttons">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                <span id="theme-icon">☀️</span>
+            </button>
+            <a href="index.html" class="btn">Back to Gallery</a>
+        </div>
+    </nav>
+    
+    <div class="profile-container">
+        <div class="profile-collections">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading profile...</p>
+            </div>
+            
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <h2>No collections yet</h2>
+                <p>This user hasn't shared any collections.</p>
+            </div>
+            
+            <div id="content-grid" class="content-grid"></div>
+        </div>
+        
+        <div class="profile-sidebar">
+            <div class="profile-header">
+                <h1 class="profile-name" id="profile-name">Loading...</h1>
+                <div class="profile-username" id="profile-username">@username</div>
+            </div>
+            
+            <div class="profile-about" id="profile-about">
+                Loading profile information...
+            </div>
+            
+            <div class="profile-social" id="profile-social"></div>
+            
+            <div id="profile-resume-container"></div>
+            
+            <a href="#" id="profile-portfolio-link" class="profile-portfolio-btn" target="_blank" style="display: none;">
+                🌐 View Portfolio Site
+            </a>
+        </div>
+    </div>
+    
+    <script src="js/cloudflare-config.js"></script>
+    
+    <script>
+        // Get username from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        
+        if (!username) {
+            window.location.href = 'index.html';
+        }
+        
+        async function loadProfile() {
+            try {
+                // Load profile data
+                const profile = await window.db.get('profiles', username);
+                
+                // Load user data to check Pro status
+                const users = await window.db.getAll('users', { siteName: username });
+                let isPro = false;
+                
+                if (users && users.length > 0) {
+                    isPro = users[0].isPro || false;
+                }
+                
+                if (profile) {
+                    // Update profile info
+                    document.getElementById('profile-name').textContent = profile.fullName || username;
+                    
+                    const usernameEl = document.getElementById('profile-username');
+                    usernameEl.innerHTML = `@${username}`;
+                    
+                    if (isPro) {
+                        usernameEl.innerHTML += ' <span class="pro-badge">Pro</span>';
+                    }
+                    document.getElementById('profile-about').textContent = profile.about || 'No bio available.';
+                    
+                    // Update social links
+                    const socialContainer = document.getElementById('profile-social');
+                    socialContainer.innerHTML = '';
+                    
+                    if (profile.showInstagram && profile.instagram) {
+                        socialContainer.innerHTML += `
+                            <a href="${profile.instagram}" target="_blank" aria-label="Instagram">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg" alt="Instagram">
+                            </a>
+                        `;
+                    }
+                    
+                    if (profile.showLinkedin && profile.linkedin) {
+                        socialContainer.innerHTML += `
+                            <a href="${profile.linkedin}" target="_blank" aria-label="LinkedIn">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg" alt="LinkedIn">
+                            </a>
+                        `;
+                    }
+                    
+                    if (profile.showImdb && profile.imdb) {
+                        socialContainer.innerHTML += `
+                            <a href="${profile.imdb}" target="_blank" aria-label="IMDb">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" alt="IMDb" style="width: 40px; height: auto;">
+                            </a>
+                        `;
+                    }
+                    
+                    if (profile.showArtstation && profile.artstation) {
+                        socialContainer.innerHTML += `
+                            <a href="${profile.artstation}" target="_blank" aria-label="ArtStation">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M0 17.723l2.027 3.505h.001a2.424 2.424 0 0 0 2.164 1.333h13.457l-2.792-4.838H0zm24 .025c0-.484-.143-.935-.388-1.314L15.728 2.728a2.424 2.424 0 0 0-2.142-1.289H9.419L21.598 22.54l1.92-3.325c.378-.637.482-.919.482-1.467zM2.143 16.512L12.041 1.472 3.041 16.512H2.143z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                        `;
+                    }
+                    
+                    // Add resume link
+                    const resumeContainer = document.getElementById('profile-resume-container');
+                    if (profile.resumeUrl) {
+                        resumeContainer.innerHTML = `
+                            <a href="${profile.resumeUrl}" target="_blank" class="profile-resume-btn">
+                                📄 View Resume
+                            </a>
+                        `;
+                    }
+                    
+                    // Add portfolio site link
+                    const portfolioLink = document.getElementById('profile-portfolio-link');
+                    portfolioLink.href = `site.html?name=${username}`;
+                    portfolioLink.style.display = 'block';
+                } else {
+                    // No profile data, use defaults
+                    document.getElementById('profile-name').textContent = username;
+                    
+                    const usernameEl = document.getElementById('profile-username');
+                    usernameEl.innerHTML = `@${username}`;
+                    
+                    if (isPro) {
+                        usernameEl.innerHTML += ' <span class="pro-badge">Pro</span>';
+                    }
+                    
+                    document.getElementById('profile-about').textContent = 'No bio available.';
+                }
+                
+                // Load collections
+                const collections = await window.db.getAll('collections', { username: username });
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                if (!collections || collections.length === 0) {
+                    document.getElementById('empty-state').style.display = 'block';
+                    return;
+                }
+                
+                // Sort by createdAt on client side
+                collections.sort((a, b) => {
+                    const timeA = new Date(a.createdAt || 0).getTime();
+                    const timeB = new Date(b.createdAt || 0).getTime();
+                    return timeB - timeA;
+                });
+                
+                displayCollections(collections);
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('loading').innerHTML = '<p style="color: #f44336;">Error loading profile. Please try again.</p>';
+            }
+        }
+        
+        function displayCollections(collections) {
+            const gridDiv = document.getElementById('content-grid');
+            gridDiv.innerHTML = '';
+            
+            collections.forEach(collection => {
+                const thumbnailUrl = collection.thumbnailUrl || (collection.mediaUrls && collection.mediaUrls[0]);
+                if (!thumbnailUrl) return;
+                
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.onclick = () => {
+                    window.location.href = `index.html#collection-${collection.id}`;
+                };
+                
+                const isVideo = thumbnailUrl.includes('.mp4') || thumbnailUrl.includes('.mov');
+                const softwareTags = collection.software ? collection.software.join(' • ') : '';
+                
+                if (isVideo) {
+                    card.innerHTML = `
+                        <video class="content-media" muted loop preload="metadata">
+                            <source src="${thumbnailUrl}" type="video/mp4">
+                        </video>
+                        <div class="content-overlay">
+                            <div class="content-username">${collection.title || 'Untitled'}</div>
+                            <div class="content-software">${softwareTags}</div>
+                        </div>
+                    `;
+                    
+                    const video = card.querySelector('video');
+                    card.addEventListener('mouseenter', () => video.play());
+                    card.addEventListener('mouseleave', () => {
+                        video.pause();
+                        video.currentTime = 0;
+                    });
+                    
+                    video.addEventListener('loadedmetadata', () => {
+                        const aspectRatio = video.videoWidth / video.videoHeight;
+                        if (aspectRatio > 1.5) {
+                            card.classList.add('wide');
+                        } else if (aspectRatio < 0.7) {
+                            card.classList.add('tall');
+                        } else {
+                            card.classList.add('square');
+                        }
+                    });
+                } else {
+                    card.innerHTML = `
+                        <img class="content-media" src="${thumbnailUrl}" alt="${collection.title || 'Untitled'}">
+                        <div class="content-overlay">
+                            <div class="content-username">${collection.title || 'Untitled'}</div>
+                            <div class="content-software">${softwareTags}</div>
+                        </div>
+                    `;
+                    
+                    const img = card.querySelector('img');
+                    img.addEventListener('load', () => {
+                        const aspectRatio = img.naturalWidth / img.naturalHeight;
+                        if (aspectRatio > 1.5) {
+                            card.classList.add('wide');
+                        } else if (aspectRatio < 0.7) {
+                            card.classList.add('tall');
+                        } else {
+                            card.classList.add('square');
+                        }
+                    });
+                }
+                
+                gridDiv.appendChild(card);
+            });
+        }
+        
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            const themeIcon = document.getElementById('theme-icon');
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+        }
+
+        // Load saved theme on page load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const themeIcon = document.getElementById('theme-icon');
+            
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (themeIcon) {
+                themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+            }
+        })();
+        
+        // Load profile on page load
+        loadProfile();
+    </script>
+</body>
+</html>

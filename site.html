@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            z-index: 9999;
+        }
+        
+        #error-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        #error-page h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        #error-page p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        #error-page a {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 2px solid white;
+        }
+        
+        #error-page a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        #site-frame {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div>Loading site...</div>
+    </div>
+    
+    <div id="error-page">
+        <h1>🚫 Site Not Found</h1>
+        <p>This portfolio site doesn't exist or hasn't been set up yet.</p>
+        <a href="/">Return to Sidey Home</a>
+    </div>
+    
+    <iframe id="site-frame"></iframe>
+
+    <script src="js/cloudflare-config.js"></script>
+    <script>
+        async function loadUserSite() {
+            const loading = document.getElementById('loading');
+            const errorPage = document.getElementById('error-page');
+            const siteFrame = document.getElementById('site-frame');
+            
+            // Get siteName from URL - check query parameter first (for Cloudflare subdomain routing), then subdomain, then path
+            const urlParams = new URLSearchParams(window.location.search);
+            let siteName = urlParams.get('siteName') || urlParams.get('name');
+            
+            // If no query parameter, check subdomain
+            if (!siteName) {
+                const hostname = window.location.hostname;
+                const subdomain = hostname.split('.')[0];
+                
+                // Check if this is a subdomain (not www, not the main domain)
+                if (subdomain && subdomain !== 'www' && subdomain !== 'sidey' && subdomain !== 'localhost' && !hostname.match(/^\d/)) {
+                    siteName = subdomain;
+                }
+            }
+            
+            // If still no siteName, get from URL path (but not if it's a template path)
+            if (!siteName) {
+                const path = window.location.pathname;
+                // Ignore template paths and site.html itself
+                if (!path.includes('/templates/') && path !== '/site.html' && path !== '/site') {
+                    const pathSegment = path.substring(1).split('/')[0]; // Remove leading slash and get first segment
+                    if (pathSegment) {
+                        siteName = pathSegment;
+                    }
+                }
+            }
+            
+            // If no siteName or it's a system route, redirect to home
+            if (!siteName || siteName === 'admin' || siteName === 'dashboard' || 
+                siteName === 'signup' || siteName === 'signin' || siteName === 'choose-template' ||
+                siteName === 'site.html' || siteName === 'site') {
+                window.location.href = '/';
+                return;
+            }
+            
+            console.log('DEBUG: hostname =', window.location.hostname);
+            console.log('DEBUG: subdomain =', window.location.hostname.split('.')[0]);
+            console.log('DEBUG: siteName =', siteName);
+            console.log('DEBUG: pathname =', window.location.pathname);
+            console.log('DEBUG: search =', window.location.search || '<empty string>');
+            
+            try {
+                // Check if site exists using Cloudflare API
+                console.log('DEBUG: Looking for site document:', siteName);
+                const siteData = await window.db.get('sites', siteName);
+                console.log('DEBUG: Site found?', !!siteData);
+                
+                if (!siteData) {
+                    // Site doesn't exist
+                    console.log('DEBUG: Site not found');
+                    loading.style.display = 'none';
+                    errorPage.style.display = 'flex';
+                    return;
+                }
+                
+                const template = siteData.template;
+                
+                // Update page title
+                document.title = siteName.charAt(0).toUpperCase() + siteName.slice(1) + ' - Portfolio';
+                
+                // Load the appropriate template
+                let templatePath = '';
+                if (template === 'robcine') {
+                    templatePath = '/templates/robcine/index.html';
+                } else if (template === 'sanaa') {
+                    templatePath = '/templates/sanaa/index.html';
+                } else {
+                    throw new Error('Unknown template: ' + template);
+                }
+                
+                // Redirect to the template with siteName parameter
+                // This keeps the subdomain in the URL
+                window.location.href = templatePath + '?siteName=' + siteName;
+                
+            } catch (error) {
+                console.error('Error loading site:', error);
+                loading.style.display = 'none';
+                errorPage.style.display = 'flex';
+            }
+        }
+
+        loadUserSite();
+    </script>
+</body>
+</html>

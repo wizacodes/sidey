@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Custom Domain - Sidey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .step-desc {
+            color: #666;
+            line-height: 1.6;
+            margin-left: 44px;
+        }
+        .form-group {
+            margin: 30px 0;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            width: auto;
+            margin-bottom: 20px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success strong {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+            color: #721c24;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Connect Your Domain</h1>
+        <p class="subtitle">
+            Connect a domain you purchased in Cloudflare to your Sidey portfolio. 
+            DNS records will be configured automatically!
+        </p>
+
+        <!-- Instructions -->
+        <div class="step">
+            <span class="step-number">1</span>
+            <div class="step-title">Purchase Domain in Cloudflare</div>
+            <div class="step-desc">
+                Go to <a href="https://dash.cloudflare.com/domains/register" target="_blank" class="link">Cloudflare Dashboard → Domain Registration</a> 
+                and purchase your domain (e.g., myportfolio.com)
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <div class="step-title">Enter Domain Below</div>
+            <div class="step-desc">
+                Once purchased, enter the domain name and click Connect. 
+                We'll automatically configure the DNS records for you.
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="form-group">
+            <label>Your Domain Name</label>
+            <input type="text" id="domain-input" placeholder="myportfolio.com" />
+        </div>
+
+        <button class="btn" id="connect-btn" onclick="connectDomain()">Connect Domain</button>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px; color: #666;">Configuring DNS records...</p>
+        </div>
+
+        <!-- Result -->
+        <div id="result"></div>
+    </div>
+
+    <!-- Cloudflare API -->
+    <script src="js/cloudflare-config.js"></script>
+
+    <script>
+        async function connectDomain() {
+            const domain = document.getElementById('domain-input').value.trim().toLowerCase();
+            
+            if (!domain) {
+                alert('Please enter a domain name');
+                return;
+            }
+
+            // Remove protocol and trailing slash
+            const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+            if (!cleanDomain.includes('.')) {
+                alert('Please enter a valid domain (e.g., myportfolio.com)');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('connect-btn').disabled = true;
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result').innerHTML = '';
+
+            try {
+                // Get current user
+                const user = await window.auth.getCurrentUser();
+                if (!user) {
+                    alert('You must be logged in to connect a domain.');
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('connect-btn').disabled = false;
+                    return;
+                }
+
+                // Get user's siteName from users collection
+                const userData = await window.db.get('users', user.id);
+                if (!userData || !userData.siteName) {
+                    alert('No site found for your account.');
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('connect-btn').disabled = false;
+                    return;
+                }
+                const siteName = userData.siteName;
+
+                // Update customDomain in both users and sites collections
+                await window.db.update('users', user.id, {
+                    customDomain: cleanDomain
+                });
+                await window.db.update('sites', siteName, {
+                    customDomain: cleanDomain
+                });
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('result').innerHTML = `
+                    <div class="success">
+                        <strong>🎉 Success!</strong>
+                        <p>Your domain <strong>${cleanDomain}</strong> is now connected!</p>
+                        <p>Your portfolio is now live at:</p>
+                        <p><strong><a href="https://${cleanDomain}" target="_blank" class="link">${cleanDomain}</a></strong></p>
+                        <button class="btn" onclick="window.location.href='dashboard.html'" style="margin-top: 20px;">
+                            Return to Dashboard
+                        </button>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('connect-btn').disabled = false;
+                document.getElementById('result').innerHTML = `
+                    <div class="error">
+                        <strong>Error</strong>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('domain-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                connectDomain();
+            }
+        });
+    </script>
+</body>
+</html>

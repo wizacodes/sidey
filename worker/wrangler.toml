@@ -1,0 +1,30 @@
+name = "sidey-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "sidey-db"
+database_id = "9e75519f-8377-488c-bcf9-96ba6d604290"
+
+# R2 Storage Bucket
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "sidey-assets"
+
+# KV Namespace for sessions/cache
+[[kv_namespaces]]
+binding = "KV"
+id = "beeec9936b6348948ff32da7a942fe02"
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+CORS_ORIGIN = "https://sidey.app"
+# JWT_SECRET should be set via: wrangler secret put JWT_SECRET
+
+# Development overrides
+[env.dev]
+vars = { ENVIRONMENT = "development", CORS_ORIGIN = "*" }
