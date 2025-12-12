@@ -1647,7 +1647,7 @@
       countSpan.textContent = 'Uploading...';
       
       try {
-        // Upload all pending files
+        // Upload all pending files to R2
         const uploadPromises = pending.map(async (item) => {
           const result = await storage.upload(`${SITE_ID}/uploads/${Date.now()}-${item.file.name}`, item.file);
           return {
@@ -1659,13 +1659,9 @@
         
         const uploadedMedia = await Promise.all(uploadPromises);
         
-        // Get current collection data
-        const collection = await db.get('collections', collectionId);
-        const currentMedia = collection.media || [];
-        
-        // Update collection with new media
+        // Send only the new media to the API - backend will append to existing
         await db.update('collections', collectionId, {
-          media: [...currentMedia, ...uploadedMedia]
+          media: uploadedMedia
         });
         
         // Clean up

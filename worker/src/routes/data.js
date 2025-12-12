@@ -228,18 +228,68 @@ async function handleCollections(request, env, method, collectionId, url) {
     const body = await request.json();
     const now = new Date().toISOString();
 
-    await env.DB.prepare(`
-      UPDATE collections SET title = ?, description = ?, software = ?, equipment = ?, order_index = ?, updated_at = ?
-      WHERE id = ?
-    `).bind(
-      body.title,
-      body.description || null,
-      JSON.stringify(body.software || []),
-      JSON.stringify(body.equipment || []),
-      body.orderIndex || 0,
-      now,
-      collectionId
-    ).run();
+    // Build dynamic update query based on provided fields
+    const updates = [];
+    const values = [];
+    
+    if (body.title !== undefined) {
+      updates.push('title = ?');
+      values.push(body.title);
+    }
+    if (body.description !== undefined) {
+      updates.push('description = ?');
+      values.push(body.description || null);
+    }
+    if (body.software !== undefined) {
+      updates.push('software = ?');
+      values.push(JSON.stringify(body.software || []));
+    }
+    if (body.equipment !== undefined) {
+      updates.push('equipment = ?');
+      values.push(JSON.stringify(body.equipment || []));
+    }
+    if (body.orderIndex !== undefined) {
+      updates.push('order_index = ?');
+      values.push(body.orderIndex || 0);
+    }
+    
+    updates.push('updated_at = ?');
+    values.push(now);
+    values.push(collectionId);
+
+    if (updates.length > 1) {
+      await env.DB.prepare(`
+        UPDATE collections SET ${updates.join(', ')}
+        WHERE id = ?
+      `).bind(...values).run();
+    }
+
+    // Add new media if provided
+    if (body.media && Array.isArray(body.media) && body.media.length > 0) {
+      // Get current max order_index
+      const maxOrder = await env.DB.prepare(`
+        SELECT MAX(order_index) as max_idx FROM collection_media WHERE collection_id = ?
+      `).bind(collectionId).first();
+      
+      let orderIndex = (maxOrder?.max_idx || 0) + 1;
+      
+      for (const mediaItem of body.media) {
+        if (mediaItem.url) {
+          await env.DB.prepare(`
+            INSERT INTO collection_media (id, collection_id, url, type, filename, order_index, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            generateId(),
+            collectionId,
+            mediaItem.url,
+            mediaItem.type || 'image',
+            mediaItem.filename || null,
+            orderIndex++,
+            now
+          ).run();
+        }
+      }
+    }
 
     return jsonResponse({ success: true });
   }
