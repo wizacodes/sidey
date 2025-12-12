@@ -118,6 +118,9 @@ async function handleProfiles(request, env, method, siteId, url) {
 async function handleCollections(request, env, method, collectionId, url) {
   if (method === 'GET') {
     const siteId = url.searchParams.get('siteId');
+    const orderBy = url.searchParams.get('orderBy') || 'created_at';
+    const orderDir = url.searchParams.get('orderDir') || 'DESC';
+    const limit = parseInt(url.searchParams.get('limit')) || 50;
     
     if (collectionId) {
       // Get single collection with media
@@ -139,14 +142,21 @@ async function handleCollections(request, env, method, collectionId, url) {
       });
     }
 
-    if (!siteId) {
-      return jsonResponse({ error: 'Site ID required' }, 400);
+    // If siteId provided, filter by site; otherwise return all (for global feed)
+    let collections;
+    if (siteId) {
+      // Get all collections for a site
+      collections = await env.DB.prepare(`
+        SELECT * FROM collections WHERE site_id = ? ORDER BY order_index, created_at DESC LIMIT ?
+      `).bind(siteId, limit).all();
+    } else {
+      // Get all collections globally (for homepage feed)
+      const validOrderBy = ['created_at', 'updated_at', 'title'].includes(orderBy) ? orderBy : 'created_at';
+      const validOrderDir = orderDir.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+      collections = await env.DB.prepare(`
+        SELECT * FROM collections ORDER BY ${validOrderBy} ${validOrderDir} LIMIT ?
+      `).bind(limit).all();
     }
-
-    // Get all collections for a site
-    const collections = await env.DB.prepare(`
-      SELECT * FROM collections WHERE site_id = ? ORDER BY order_index, created_at DESC
-    `).bind(siteId).all();
 
     // Get media for all collections
     const collectionsWithMedia = await Promise.all(
