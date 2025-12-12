@@ -2333,8 +2333,15 @@
                     document.getElementById('profile-about').textContent = 'No bio available.';
                 }
                 
-                // Load collections
-                const collections = await window.db.getAll('collections', { username: username });
+                // Load collections - use siteId param (username is the site ID)
+                const collectionsRaw = await window.db.getAll('collections', { siteId: username });
+                
+                // Transform API response to match expected format
+                const collections = (collectionsRaw || []).map(c => ({
+                    ...c,
+                    username: c.siteId || c.username || username,
+                    mediaUrls: (c.media || []).map(m => m.url)
+                }));
                 
                 document.getElementById('profile-loading').style.display = 'none';
                 
@@ -2354,7 +2361,9 @@
                 const grid = document.getElementById('profile-collections-grid');
                 collections.forEach(collection => {
                     const card = createCollectionCard(collection);
-                    grid.appendChild(card);
+                    if (card) {
+                        grid.appendChild(card);
+                    }
                 });
                 
             } catch (error) {
