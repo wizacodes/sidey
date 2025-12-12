@@ -5,73 +5,781 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Panel - Sidey CMS</title>
   <style>
+    :root {
+      --bg-primary: #09090b;
+      --bg-secondary: #18181b;
+      --bg-tertiary: #27272a;
+      --border-color: #27272a;
+      --border-hover: #3f3f46;
+      --text-primary: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent-purple: #a855f7;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-purple: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+    }
+    
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #eee; }
-    .navbar { background: #111; padding: 16px 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 1.5rem; font-weight: 700; }
-    .user-info { display: flex; align-items: center; gap: 20px; }
-    .user-email { color: #999; font-size: 0.9rem; }
-    .btn-logout { background: #d32f2f; color: #fff; padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
-    .btn-logout:hover { background: #c62828; }
-    .admin-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-    .admin-section { margin-bottom: 40px; padding: 24px; background: #111; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
-    .admin-section h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; }
-    .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
-    .form-group label { margin-bottom: 8px; font-size: 0.9rem; color: #bdbdbd; font-weight: 600; }
-    .form-group input, .form-group textarea { background: #000; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 6px; font-size: 1rem; }
-    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
-    .form-group textarea { font-family: monospace; min-height: 200px; resize: vertical; }
-    button { background: #667eea; border: none; color: #fff; padding: 12px 24px; cursor: pointer; border-radius: 6px; font-weight: 600; transition: background 0.3s; }
-    button:hover { background: #5568d3; }
-    button:disabled { background: #333; cursor: not-allowed; }
-    button.danger { background: #d32f2f; }
-    button.danger:hover { background: #c62828; }
-    .posts-list { list-style: none; padding: 0; }
-    .posts-list li { padding: 16px; background: #000; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .message { padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 0.9rem; }
-    .message.success { background: rgba(76, 175, 80, 0.2); color: #81c784; border: 1px solid rgba(76, 175, 80, 0.5); }
-    .message.error { background: rgba(244, 67, 54, 0.2); color: #e57373; border: 1px solid rgba(244, 67, 54, 0.5); }
-    .loading { text-align: center; padding: 60px 20px; }
-    .spinner { border: 4px solid #333; border-top: 4px solid #667eea; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .hidden { display: none; }
-    .site-badge { background: #667eea; color: #fff; padding: 6px 12px; border-radius: 16px; font-size: 0.85rem; font-weight: 600; }
-    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-top: 20px; }
-    .image-item { position: relative; }
-    .image-item img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
-    .image-item button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; font-size: 0.8rem; }
-    .back-link { display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none; }
-    .back-link:hover { text-decoration: underline; }
-    .software-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-    .software-btn { background: #1a1a1a; border: 2px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-    .software-btn:hover { border-color: #667eea; }
-    .software-btn.selected { background: #667eea; border-color: #667eea; }
-    .collection-preview { margin-top: 20px; padding: 20px; background: #000; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-    .collection-preview h3 { margin-top: 0; margin-bottom: 16px; color: #667eea; }
-    .collection-images-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .collection-images-preview img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; }
-    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag { background: rgba(102, 126, 234, 0.2); color: #667eea; padding: 6px 12px; border-radius: 16px; font-size: 0.85rem; font-weight: 600; }
-    .collection-card { background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-    .collection-card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; }
-    .collection-card-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
-    .collection-card-description { color: #999; margin-bottom: 16px; line-height: 1.6; }
-    .collection-card-media { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .collection-media-item { position: relative; }
-    .collection-media-item img, .collection-media-item video { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
-    .collection-media-item button { position: absolute; top: 8px; right: 8px; padding: 4px 8px; font-size: 0.75rem; }
-    .collection-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .collection-edit-form { margin-top: 20px; padding: 20px; background: #1a1a1a; border-radius: 8px; display: none; }
-    .collection-edit-form.active { display: block; }
+    
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    /* Navbar */
+    .navbar {
+      background: rgba(24, 24, 27, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .site-badge {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      -webkit-text-fill-color: var(--text-secondary);
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .user-email {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    .btn-logout {
+      background: var(--accent-red);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .btn-logout:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+    }
+    
+    .sidey-icon {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      margin-right: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    
+    .sidey-icon:hover {
+      background: var(--bg-tertiary);
+    }
+    
+    .sidey-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--accent-amber);
+    }
+    
+    /* Loading state */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-purple);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    /* Container */
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Header */
+    .page-header {
+      margin-bottom: 40px;
+    }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 20px;
+      padding: 8px 14px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      transition: all 0.2s;
+    }
+    
+    .back-link:hover {
+      color: var(--text-primary);
+      border-color: var(--border-hover);
+    }
+    
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    /* Bento Grid */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+    
+    .admin-section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .admin-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.3), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .admin-section:hover {
+      border-color: var(--border-hover);
+    }
+    
+    .admin-section:hover::before {
+      opacity: 1;
+    }
+    
+    /* Card sizes */
+    .card-full { grid-column: span 12; }
+    .card-half { grid-column: span 6; }
+    .card-third { grid-column: span 4; }
+    .card-two-thirds { grid-column: span 8; }
+    
+    @media (max-width: 1024px) {
+      .card-half, .card-third, .card-two-thirds { grid-column: span 12; }
+    }
+    
+    /* Card Header */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    
+    .section-icon.purple { background: rgba(168, 85, 247, 0.15); }
+    .section-icon.blue { background: rgba(59, 130, 246, 0.15); }
+    .section-icon.green { background: rgba(34, 197, 94, 0.15); }
+    .section-icon.amber { background: rgba(245, 158, 11, 0.15); }
+    .section-icon.red { background: rgba(239, 68, 68, 0.15); }
+    .section-icon.pink { background: rgba(236, 72, 153, 0.15); }
+    
+    .admin-section h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+    
+    /* Form styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+    }
+    
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .form-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    
+    /* Social toggle */
+    .social-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 14px;
+      background: var(--bg-primary);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .social-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-purple);
+      cursor: pointer;
+    }
+    
+    .social-toggle input[type="url"] {
+      flex: 1;
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+    
+    .social-toggle label {
+      min-width: 100px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    
+    /* Buttons */
+    button {
+      padding: 12px 24px;
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    button:disabled {
+      background: var(--bg-tertiary);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    button.danger {
+      background: var(--accent-red);
+    }
+    
+    button.danger:hover {
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    
+    button.secondary {
+      background: var(--bg-tertiary);
+    }
+    
+    button.secondary:hover {
+      background: var(--border-hover);
+      box-shadow: none;
+    }
+    
+    /* Messages */
+    .message {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    
+    .message.error {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .message.success {
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    /* Software selection */
+    .software-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .software-btn {
+      padding: 10px 18px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 25px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .software-btn:hover {
+      border-color: var(--accent-purple);
+      color: var(--text-primary);
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    
+    .software-btn.selected {
+      background: var(--gradient-primary);
+      border-color: transparent;
+      color: white;
+    }
+    
+    /* File input */
+    input[type="file"] {
+      width: 100%;
+      padding: 14px;
+      background: var(--bg-primary);
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    input[type="file"]:hover {
+      border-color: var(--accent-purple);
+    }
+    
+    input[type="file"]::-webkit-file-upload-button {
+      padding: 10px 18px;
+      background: var(--bg-tertiary);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      margin-right: 12px;
+      font-size: 13px;
+    }
+    
+    /* Image grid */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    
+    .image-item {
+      position: relative;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    
+    .image-item:hover {
+      border-color: var(--border-hover);
+    }
+    
+    .image-item img,
+    .image-item video {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    
+    .image-item button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+    
+    /* Collection preview */
+    .collection-preview {
+      margin-top: 20px;
+      padding: 20px;
+      background: var(--bg-primary);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .collection-preview h3 {
+      margin: 0 0 16px 0;
+      color: var(--accent-purple);
+      font-size: 16px;
+    }
+    
+    .collection-images-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .collection-images-preview img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    
+    /* Collection cards */
+    .collection-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+    
+    .collection-card:hover {
+      border-color: var(--border-hover);
+    }
+    
+    .collection-card-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .collection-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    
+    .collection-card-description {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    
+    .collection-card-media {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      padding: 16px;
+    }
+    
+    .collection-media-item {
+      position: relative;
+    }
+    
+    .collection-media-item img,
+    .collection-media-item video {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    
+    .collection-media-item button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 6px;
+    }
+    
+    .collection-actions {
+      display: flex;
+      gap: 12px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+    
+    .collection-actions button,
+    .collection-actions .btn {
+      padding: 10px 18px;
+      font-size: 13px;
+    }
+    
+    .collection-actions .btn {
+      background: var(--bg-tertiary);
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .collection-actions .btn:hover {
+      background: var(--border-hover);
+    }
+    
+    .collection-edit-form {
+      display: none;
+      padding: 20px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+    }
+    
+    .collection-edit-form.active {
+      display: block;
+    }
+    
+    /* Tags */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .tag {
+      padding: 5px 12px;
+      background: rgba(168, 85, 247, 0.15);
+      border-radius: 15px;
+      font-size: 12px;
+      color: var(--accent-purple);
+      font-weight: 500;
+    }
+    
+    /* Posts list */
+    .posts-list {
+      list-style: none;
+    }
+    
+    .posts-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    
+    .posts-list li:hover {
+      border-color: var(--border-hover);
+    }
+    
+    .posts-list li button {
+      padding: 8px 16px;
+    }
+    
+    /* Utility classes */
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Section divider */
+    .section-divider {
+      grid-column: span 12;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 10px 0;
+    }
+    
+    .section-divider h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      
+      .user-info {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .admin-container {
+        padding: 24px 16px;
+      }
+      
+      h1 {
+        font-size: 28px;
+      }
+      
+      .form-group input,
+      .form-group textarea {
+        padding: 10px 14px;
+      }
+      
+      button {
+        padding: 10px 20px;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- Navbar -->
   <nav class="navbar">
-    <div class="logo">sidey <span class="site-badge" id="site-badge">Loading...</span></div>
+    <div class="logo">
+      sidey <span class="site-badge" id="site-badge">Loading...</span>
+    </div>
     <div class="user-info">
-      <a href="#" id="sidey-profile-link" style="display: flex; align-items: center; text-decoration: none; margin-right: 12px;" title="View on Sidey">
-        <svg viewBox="0 0 751 886" style="width: 28px; height: 28px; fill: #FFD700;">
+      <a href="#" id="sidey-profile-link" class="sidey-icon" title="View on Sidey">
+        <svg viewBox="0 0 751 886">
           <path fill-rule="evenodd" d="m541.81 14l-75.07 179.54-394.74 178.71 78.27-180.99z"/>
           <path fill-rule="evenodd" d="m670.96 467.31l-178.74 76.96-408.06-145.74 182.05-75.79z"/>
           <path fill-rule="evenodd" d="m697.36 488.91l-74.09 179.95-393.76 180.86 77.29-181.42z"/>
@@ -92,12 +800,18 @@
   <div id="admin-container" class="admin-container hidden">
     <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
     
-    <h1 style="margin-bottom: 32px;">Content Management</h1>
+    <div class="page-header">
+      <h1>Content Management</h1>
+    </div>
 
-    <!-- Profile Information -->
-    <div class="admin-section">
-      <h2>👤 Profile Information</h2>
-      <div id="profile-message"></div>
+    <div class="bento-grid">
+      <!-- Profile Information -->
+      <div class="admin-section card-full">
+        <div class="section-header">
+          <div class="section-icon purple">👤</div>
+          <h2>Profile Information</h2>
+        </div>
+        <div id="profile-message"></div>
       
       <div class="form-group">
         <label>Full Name</label>
@@ -150,12 +864,15 @@
       </div>
 
       <button onclick="saveProfile()">Save Profile</button>
-    </div>
+      </div>
 
-    <!-- Create New Collection -->
-    <div class="admin-section">
-      <h2>🎨 New Collection</h2>
-      <div id="collection-message"></div>
+      <!-- Create New Collection -->
+      <div class="admin-section card-full">
+        <div class="section-header">
+          <div class="section-icon green">🎨</div>
+          <h2>New Collection</h2>
+        </div>
+        <div id="collection-message"></div>
       
       <div class="form-group">
         <label>Collection Title</label>
@@ -170,7 +887,7 @@
       <div class="form-group">
         <label>Upload Images, Videos, or 3D Models</label>
         <input type="file" id="collection-images-input" accept="image/*,video/*,.glb" multiple />
-        <small style="color: #999; font-size: 0.85rem; margin-top: 4px; display: block;">Supported: Images (JPG, PNG, etc.), Videos (MP4, WebM), 3D Models (.glb)</small>
+        <div class="form-hint">Supported: Images (JPG, PNG, etc.), Videos (MP4, WebM), 3D Models (.glb)</div>
       </div>
 
       <div class="form-group">
@@ -196,69 +913,85 @@
         <h3>Preview</h3>
         <div id="collection-preview-content"></div>
       </div>
-    </div>
-
-    <!-- Manage Existing Collections -->
-    <div class="admin-section">
-      <h2>📚 Your Collections</h2>
-      <div id="collections-message"></div>
-      <div id="collections-list"></div>
-    </div>
-
-    <!-- Upload Gallery Image -->
-    <div class="admin-section">
-      <h2>📸 Gallery Media</h2>
-      <div id="upload-message"></div>
-      <div class="form-group">
-        <label>Upload Images or Videos to Gallery</label>
-        <input type="file" id="file-input" accept="image/*,video/*" multiple />
       </div>
-      <button onclick="uploadImages()">Upload Media</button>
-      
-      <div id="images-grid" class="image-grid"></div>
-    </div>
 
-    <!-- Upload Background Video -->
-    <div class="admin-section">
-      <h2>🎬 Background Video</h2>
-      <div id="video-upload-message"></div>
-      <div class="form-group">
-        <label>Upload Background Showreel (MP4)</label>
-        <input type="file" id="video-file-input" accept="video/mp4" />
+      <!-- Manage Existing Collections -->
+      <div class="admin-section card-full">
+        <div class="section-header">
+          <div class="section-icon blue">📚</div>
+          <h2>Your Collections</h2>
+        </div>
+        <div id="collections-message"></div>
+        <div id="collections-list"></div>
       </div>
-      <button onclick="uploadBackgroundVideo()">Upload Video</button>
-      <div id="current-video" style="margin-top: 16px;"></div>
-    </div>
 
-    <!-- Upload BTS Images -->
-    <div class="admin-section">
-      <h2>🎥 Behind The Scenes</h2>
-      <div id="bts-upload-message"></div>
-      <div class="form-group">
-        <label>Upload BTS Images</label>
-        <input type="file" id="bts-file-input" accept="image/*" multiple />
+      <!-- Upload Gallery Image -->
+      <div class="admin-section card-half">
+        <div class="section-header">
+          <div class="section-icon amber">📸</div>
+          <h2>Gallery Media</h2>
+        </div>
+        <div id="upload-message"></div>
+        <div class="form-group">
+          <label>Upload Images or Videos to Gallery</label>
+          <input type="file" id="file-input" accept="image/*,video/*" multiple />
+        </div>
+        <button onclick="uploadImages()">Upload Media</button>
+        
+        <div id="images-grid" class="image-grid"></div>
       </div>
-      <button onclick="uploadBTSImages()">Upload BTS Images</button>
-      
-      <div id="bts-images-grid" class="image-grid"></div>
-    </div>
 
-    <!-- Create Blog Post -->
-    <div class="admin-section">
-      <h2>✍️ Blog Posts</h2>
-      <div id="post-message"></div>
-      <div class="form-group">
-        <label>Title</label>
-        <input type="text" id="post-title" placeholder="Enter post title" />
+      <!-- Upload Background Video -->
+      <div class="admin-section card-half">
+        <div class="section-header">
+          <div class="section-icon red">🎬</div>
+          <h2>Background Video</h2>
+        </div>
+        <div id="video-upload-message"></div>
+        <div class="form-group">
+          <label>Upload Background Showreel (MP4)</label>
+          <input type="file" id="video-file-input" accept="video/mp4" />
+        </div>
+        <button onclick="uploadBackgroundVideo()">Upload Video</button>
+        <div id="current-video" style="margin-top: 16px;"></div>
       </div>
-      <div class="form-group">
-        <label>Content (Markdown supported)</label>
-        <textarea id="post-content" placeholder="Write your post content here..."></textarea>
-      </div>
-      <button onclick="createPost()">Publish Post</button>
 
-      <h3 style="margin-top: 32px; margin-bottom: 16px;">Published Posts</h3>
-      <ul id="posts-list" class="posts-list"></ul>
+      <!-- Upload BTS Images -->
+      <div class="admin-section card-half">
+        <div class="section-header">
+          <div class="section-icon pink">🎥</div>
+          <h2>Behind The Scenes</h2>
+        </div>
+        <div id="bts-upload-message"></div>
+        <div class="form-group">
+          <label>Upload BTS Images</label>
+          <input type="file" id="bts-file-input" accept="image/*" multiple />
+        </div>
+        <button onclick="uploadBTSImages()">Upload BTS Images</button>
+        
+        <div id="bts-images-grid" class="image-grid"></div>
+      </div>
+
+      <!-- Create Blog Post -->
+      <div class="admin-section card-half">
+        <div class="section-header">
+          <div class="section-icon purple">✍️</div>
+          <h2>Blog Posts</h2>
+        </div>
+        <div id="post-message"></div>
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="post-title" placeholder="Enter post title" />
+        </div>
+        <div class="form-group">
+          <label>Content (Markdown supported)</label>
+          <textarea id="post-content" placeholder="Write your post content here..."></textarea>
+        </div>
+        <button onclick="createPost()">Publish Post</button>
+
+        <h3 style="margin-top: 32px; margin-bottom: 16px; font-size: 16px; color: var(--text-secondary);">Published Posts</h3>
+        <ul id="posts-list" class="posts-list"></ul>
+      </div>
     </div>
   </div>
 

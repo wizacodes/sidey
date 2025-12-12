@@ -771,24 +771,6 @@
                 console.error('Error loading stats:', error);
             }
         }
-            
-            // Show custom domain card for Pro users
-            if (isPro) {
-                const customDomainCard = document.getElementById('custom-domain-card');
-                customDomainCard.style.display = 'block';
-                
-                if (userData.customDomain) {
-                    // Show current domain
-                    document.getElementById('custom-domain-display').style.display = 'block';
-                    document.getElementById('current-custom-domain').textContent = userData.customDomain;
-                    document.getElementById('add-domain-btn').style.display = 'none';
-                } else {
-                    // Show add button
-                    document.getElementById('custom-domain-display').style.display = 'none';
-                    document.getElementById('add-domain-btn').style.display = 'block';
-                }
-            }
-        }
 
         // Logout
         logoutBtn.addEventListener('click', async () => {
