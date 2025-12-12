@@ -74,8 +74,8 @@ async function handleUpload(request, env) {
       },
     });
 
-    // Generate public URL
-    const publicUrl = `https://assets.sidey.app/${fileName}`;
+    // Generate public URL (using r2.dev public URL)
+    const publicUrl = `https://pub-47e131f92cf145cb94f5cd6e263508a9.r2.dev/${fileName}`;
 
     return jsonResponse({
       success: true,

@@ -8,7 +8,7 @@ const CLOUDFLARE_CONFIG = {
     : 'https://sidey-api.robwillmarsh.workers.dev',
   
   // R2 bucket public URL for assets
-  r2PublicUrl: 'https://assets.sidey.app',
+  r2PublicUrl: 'https://pub-47e131f92cf145cb94f5cd6e263508a9.r2.dev',
   
   // App URL
   appUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
