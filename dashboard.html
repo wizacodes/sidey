@@ -4,202 +4,474 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sidey CMS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-card: #1a1a1a;
+            --bg-card-hover: #222;
+            --text-primary: #fff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666;
+            --border-color: rgba(255,255,255,0.1);
+            --accent: #FFD700;
+            --accent-hover: #e6c200;
+            --success: #22c55e;
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
+        }
+        
         body {
             font-family: 'Inter', sans-serif;
-            background: #f5f5f5;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
         }
+        
+        /* Navbar */
         .navbar {
-            background: #fff;
+            background: var(--bg-secondary);
             padding: 16px 32px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
+        
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #000;
+            color: var(--accent);
+            text-decoration: none;
         }
+        
         .user-menu {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
         }
+        
         .user-email {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.9rem;
         }
+        
         .btn-logout {
-            background: #000;
-            color: #fff;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
+        
         .btn-logout:hover {
-            background: #333;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
         }
+        
+        /* Main Container */
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 32px 24px;
         }
+        
+        /* Welcome Section */
         .welcome {
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
+        
         .welcome h1 {
-            font-size: 2.5rem;
-            margin-bottom: 12px;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
+        
         .welcome p {
-            color: #666;
-            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
         }
+        
+        /* Dashboard Grid - Bento Style */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(140px, auto);
+            gap: 16px;
         }
+        
+        /* Card Base */
         .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 32px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
+        
         .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            background: var(--bg-card-hover);
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
         }
-        .card-icon {
-            font-size: 2.5rem;
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 16px;
         }
-        .card h3 {
+        
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.5rem;
-            margin-bottom: 12px;
+            background: var(--bg-secondary);
         }
-        .card p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .card-action {
-            background: #000;
-            color: #fff;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+        
+        .card h3 {
+            font-size: 1.1rem;
             font-weight: 600;
+        }
+        
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
             text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
         }
-        .card-action:hover {
-            background: #333;
-        }
-        .card-action.secondary {
-            background: transparent;
-            border: 2px solid #000;
+        
+        .btn-primary {
+            background: var(--accent);
             color: #000;
         }
-        .card-action.secondary:hover {
-            background: #f5f5f5;
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
         }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-muted);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Site Info Card - Hero */
         .site-info {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            grid-column: 1 / -1;
+            grid-column: span 8;
+            grid-row: span 2;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            border: none;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .site-info::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        }
+        
+        .site-info:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        }
+        
+        .site-info .card-header {
+            margin-bottom: 24px;
+        }
+        
         .site-info h3 {
+            font-size: 1.5rem;
             color: #fff;
         }
+        
         .site-info p {
             color: rgba(255,255,255,0.9);
+            font-size: 1rem;
         }
-        .site-url {
-            background: rgba(255,255,255,0.2);
-            padding: 16px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-family: monospace;
-            font-size: 1.1rem;
-            word-break: break-all;
-        }
+        
         .site-status {
-            display: inline-block;
-            background: #4caf50;
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 16px;
         }
+        
+        .site-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .site-url {
+            background: rgba(0,0,0,0.2);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.95rem;
+            word-break: break-all;
+            backdrop-filter: blur(10px);
+        }
+        
+        .site-info .btn-primary {
+            background: #fff;
+            color: var(--gradient-start);
+        }
+        
+        .site-info .btn-primary:hover {
+            background: rgba(255,255,255,0.9);
+        }
+        
+        .site-info .btn-secondary {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .site-info .btn-secondary:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        /* Quick Stats Card */
+        .quick-stats {
+            grid-column: span 4;
+            grid-row: span 2;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: auto;
+        }
+        
+        .stat-item {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        /* Standard Cards */
+        .card-admin { grid-column: span 4; }
+        .card-template { grid-column: span 4; }
+        .card-settings { grid-column: span 4; }
+        .card-domain { grid-column: span 6; }
+        .card-help { grid-column: span 6; }
+        
+        /* Icon Colors */
+        .icon-admin { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .icon-template { background: linear-gradient(135deg, #ec4899, #be185d); }
+        .icon-settings { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .icon-domain { background: linear-gradient(135deg, #22d3ee, #0891b2); }
+        .icon-help { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+        .icon-stats { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        
+        /* Pro Badge */
+        .pro-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 60px 20px;
+            padding: 100px 20px;
         }
+        
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 3px solid var(--bg-card);
+            border-top: 3px solid var(--accent);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
+            width: 48px;
+            height: 48px;
+            animation: spin 0.8s linear infinite;
             margin: 0 auto 20px;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .loading p {
+            color: var(--text-secondary);
+        }
+        
         .hidden {
             display: none;
         }
-        .template-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.3);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-left: 12px;
+        
+        /* Domain Input */
+        .domain-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            margin: 12px 0;
         }
+        
+        .domain-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .domain-display {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9rem;
+            margin: 12px 0;
+            word-break: break-all;
+            color: var(--accent);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .site-info { grid-column: span 12; }
+            .quick-stats { grid-column: span 12; grid-row: span 1; }
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .site-info,
+            .quick-stats,
+            .card-admin,
+            .card-template,
+            .card-settings,
+            .card-domain,
+            .card-help {
+                grid-column: span 1;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
             .welcome h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
+            
             .navbar {
-                padding: 16px 20px;
+                padding: 12px 16px;
             }
+            
+            .container {
+                padding: 20px 16px;
+            }
+            
             .user-menu {
-                flex-direction: column;
                 gap: 10px;
-                align-items: flex-end;
+            }
+            
+            .user-email {
+                display: none;
             }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <a href="index.html" class="logo" style="text-decoration: none;">sidey</a>
+        <a href="index.html" class="logo">sidey</a>
         <div class="user-menu">
             <span class="user-email" id="user-email">Loading...</span>
             <button class="btn-logout" id="logout-btn">Sign Out</button>
@@ -213,88 +485,133 @@
 
     <div id="content" class="container hidden">
         <div class="welcome">
-            <h1>Welcome back!</h1>
+            <h1 id="welcome-title">Welcome back!</h1>
             <p>Manage your creative portfolio</p>
         </div>
 
         <div class="dashboard-grid">
-            <!-- Site Info Card -->
+            <!-- Site Info Card - Large Hero -->
             <div class="card site-info">
-                <span class="site-status">● Active</span>
+                <div class="card-header">
+                    <span class="site-status">Active</span>
+                </div>
                 <h3 id="site-title">Your Portfolio</h3>
-                <p id="site-description">Your portfolio is live and ready to showcase your work</p>
+                <p id="site-description">Your portfolio is live and ready to showcase your work to the world.</p>
                 <div class="site-url" id="site-url">Loading...</div>
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <a href="#" class="card-action" id="view-site-btn" target="_blank">View Live Site</a>
-                    <button class="card-action secondary" id="copy-url-btn">Copy URL</button>
+                <div class="card-actions">
+                    <a href="#" class="btn btn-primary" id="view-site-btn" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                        View Live Site
+                    </a>
+                    <button class="btn btn-secondary" id="copy-url-btn">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Copy URL
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats Card -->
+            <div class="card quick-stats">
+                <div class="card-header">
+                    <div class="card-icon icon-stats">📊</div>
+                    <h3>Quick Stats</h3>
+                </div>
+                <p>Overview of your portfolio performance</p>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-collections">-</div>
+                        <div class="stat-label">Collections</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-views">-</div>
+                        <div class="stat-label">Views</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-media">-</div>
+                        <div class="stat-label">Media Files</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-template">-</div>
+                        <div class="stat-label">Template</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Admin Panel Card -->
-            <div class="card">
-                <div class="card-icon">⚙️</div>
-                <h3>Admin Panel</h3>
-                <p>Manage your portfolio content, upload images, write blog posts, and customize your site.</p>
-                <a href="admin.html" class="card-action">Open Admin Panel</a>
+            <div class="card card-admin">
+                <div class="card-header">
+                    <div class="card-icon icon-admin">⚙️</div>
+                    <h3>Admin Panel</h3>
+                </div>
+                <p>Manage your portfolio content, upload media, and write blog posts.</p>
+                <div class="card-actions">
+                    <a href="admin.html" class="btn btn-primary">Open Admin</a>
+                </div>
             </div>
 
             <!-- Template Card -->
-            <div class="card">
-                <div class="card-icon">🎨</div>
-                <h3>Your Template</h3>
+            <div class="card card-template">
+                <div class="card-header">
+                    <div class="card-icon icon-template">🎨</div>
+                    <h3>Template</h3>
+                </div>
                 <p id="template-info">Loading template information...</p>
-                <button class="card-action secondary" id="change-template-btn">Change Template</button>
-            </div>
-
-            <!-- Analytics Card -->
-            <div class="card">
-                <div class="card-icon">📊</div>
-                <h3>Site Stats</h3>
-                <p>View your portfolio analytics, visitor stats, and engagement metrics.</p>
-                <button class="card-action secondary" disabled>Coming Soon</button>
-            </div>
-
-            <!-- Custom Domain Card (Pro Only) -->
-            <div class="card" id="custom-domain-card" style="display: none;">
-                <div class="card-icon">🌐</div>
-                <div class="pro-badge">Pro Feature</div>
-                <h3>Custom Domain</h3>
-                <p style="margin-bottom: 12px;">Connect your own domain (e.g., yourdomain.com) to your portfolio</p>
-                <p style="font-size: 0.9rem; color: #888; background: #f9f9f9; padding: 12px; border-radius: 6px; border-left: 3px solid #667eea;">
-                    <strong>Setup Options:</strong><br>
-                    • <strong>Easiest:</strong> Register domain through Cloudflare (available in-app) - automatic setup!<br>
-                    • <strong>Own domain:</strong> Point nameservers to Cloudflare or add CNAME record<br>
-                    • <strong>Subdomain:</strong> Use myportfolio.otherwebsite.com (no Cloudflare needed)
-                </p>
-                <div id="custom-domain-display" style="display: none;">
-                    <div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin: 12px 0; font-family: monospace; font-size: 0.9rem; word-break: break-all;" id="current-custom-domain"></div>
-                    <button class="card-action secondary" id="change-domain-btn">Change Domain</button>
-                    <a href="custom-domain-guide.html" target="_blank" class="card-action secondary" style="display: inline-block; text-align: center; text-decoration: none; margin-top: 8px;">📖 View Setup Guide</a>
+                <div class="card-actions">
+                    <button class="btn btn-secondary" id="change-template-btn">Change Template</button>
                 </div>
-                <div id="custom-domain-setup" style="display: none;">
-                    <input type="text" id="custom-domain-input" placeholder="yourdomain.com" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin: 12px 0; font-size: 0.95rem;">
-                    <button class="card-action" id="save-domain-btn">Save Domain</button>
-                    <button class="card-action secondary" id="cancel-domain-btn" style="margin-top: 8px;">Cancel</button>
-                    <a href="custom-domain-guide.html" target="_blank" class="card-action secondary" style="display: inline-block; text-align: center; text-decoration: none; margin-top: 8px;">📖 View Setup Guide</a>
-                </div>
-                <button class="card-action" id="add-domain-btn">Add Custom Domain</button>
-                <a href="custom-domain-guide.html" target="_blank" class="card-action secondary" style="display: inline-block; text-align: center; text-decoration: none; margin-top: 8px;">📖 View Setup Guide</a>
             </div>
 
             <!-- Settings Card -->
-            <div class="card">
-                <div class="card-icon">🔧</div>
-                <h3>Account Settings</h3>
-                <p>Update your email, password, and account preferences.</p>
-                <button class="card-action secondary" id="settings-btn">Settings</button>
+            <div class="card card-settings">
+                <div class="card-header">
+                    <div class="card-icon icon-settings">🔧</div>
+                    <h3>Settings</h3>
+                </div>
+                <p>Update your account details, email, and preferences.</p>
+                <div class="card-actions">
+                    <button class="btn btn-secondary" id="settings-btn">Account Settings</button>
+                </div>
+            </div>
+
+            <!-- Custom Domain Card (Pro Only) -->
+            <div class="card card-domain" id="custom-domain-card" style="display: none;">
+                <div class="card-header">
+                    <div class="card-icon icon-domain">🌐</div>
+                    <h3>Custom Domain</h3>
+                    <span class="pro-badge">Pro</span>
+                </div>
+                <p>Connect your own domain to your portfolio for a professional presence.</p>
+                <div id="custom-domain-display" style="display: none;">
+                    <div class="domain-display" id="current-custom-domain"></div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" id="change-domain-btn">Change Domain</button>
+                        <a href="custom-domain-guide.html" target="_blank" class="btn btn-secondary">Setup Guide</a>
+                    </div>
+                </div>
+                <div id="custom-domain-setup" style="display: none;">
+                    <input type="text" id="custom-domain-input" class="domain-input" placeholder="yourdomain.com">
+                    <div class="card-actions">
+                        <button class="btn btn-primary" id="save-domain-btn">Save Domain</button>
+                        <button class="btn btn-secondary" id="cancel-domain-btn">Cancel</button>
+                    </div>
+                </div>
+                <div id="add-domain-container" class="card-actions">
+                    <button class="btn btn-primary" id="add-domain-btn">Add Domain</button>
+                    <a href="custom-domain-guide.html" target="_blank" class="btn btn-secondary">Setup Guide</a>
+                </div>
             </div>
 
             <!-- Help Card -->
-            <div class="card">
-                <div class="card-icon">💬</div>
-                <h3>Help & Support</h3>
-                <p>Need help? Check out our documentation or contact support.</p>
-                <a href="#" class="card-action secondary">View Docs</a>
+            <div class="card card-help">
+                <div class="card-header">
+                    <div class="card-icon icon-help">💬</div>
+                    <h3>Help & Support</h3>
+                </div>
+                <p>Need assistance? Check our docs or reach out to the team.</p>
+                <div class="card-actions">
+                    <a href="#" class="btn btn-secondary">View Documentation</a>
+                    <a href="mailto:support@sidey.app" class="btn btn-secondary">Contact Support</a>
+                </div>
             </div>
         </div>
     </div>
@@ -363,6 +680,12 @@
         checkAuth();
 
         function updateDashboard() {
+            // Update welcome title with user's name
+            const welcomeTitle = document.getElementById('welcome-title');
+            if (userData.fullName) {
+                welcomeTitle.textContent = `Welcome back, ${userData.fullName.split(' ')[0]}!`;
+            }
+            
             // Update site title
             siteTitle.textContent = `${userData.siteName}'s Portfolio`;
 
@@ -391,7 +714,7 @@
             if (userData.customDomain) {
                 siteUrlDiv.innerHTML = `
                     <div style="margin-bottom: 8px;">${siteUrl}</div>
-                    <div style="font-weight: 600; color: #667eea;">Custom: ${userData.customDomain}</div>
+                    <div style="color: var(--accent);">🌐 ${userData.customDomain}</div>
                 `;
                 viewSiteBtn.href = `https://${userData.customDomain}`;
             } else {
@@ -401,7 +724,53 @@
 
             // Update template info
             const templateName = siteData.template.charAt(0).toUpperCase() + siteData.template.slice(1);
-            templateInfo.textContent = `You're using the ${templateName} template. Switch to a different template to change your portfolio's look and feel.`;
+            templateInfo.textContent = `Using the ${templateName} template.`;
+            
+            // Update stats
+            document.getElementById('stat-template').textContent = templateName;
+            loadStats();
+            
+            // Show custom domain card for Pro users
+            if (isPro) {
+                const customDomainCard = document.getElementById('custom-domain-card');
+                customDomainCard.style.display = 'flex';
+                
+                if (userData.customDomain) {
+                    // Show current domain
+                    document.getElementById('custom-domain-display').style.display = 'block';
+                    document.getElementById('current-custom-domain').textContent = userData.customDomain;
+                    document.getElementById('add-domain-container').style.display = 'none';
+                } else {
+                    // Show add button
+                    document.getElementById('custom-domain-display').style.display = 'none';
+                    document.getElementById('add-domain-container').style.display = 'flex';
+                }
+            }
+        }
+        
+        // Load stats
+        async function loadStats() {
+            try {
+                // Get collections count
+                const collections = await db.getAll('collections', { siteId: userData.siteName });
+                const collectionCount = collections ? collections.length : 0;
+                document.getElementById('stat-collections').textContent = collectionCount;
+                
+                // Count total media files
+                let mediaCount = 0;
+                if (collections) {
+                    collections.forEach(c => {
+                        if (c.media) mediaCount += c.media.length;
+                    });
+                }
+                document.getElementById('stat-media').textContent = mediaCount;
+                
+                // Views - placeholder for now
+                document.getElementById('stat-views').textContent = '—';
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
             
             // Show custom domain card for Pro users
             if (isPro) {
@@ -434,11 +803,12 @@
 
         // Copy URL
         copyUrlBtn.addEventListener('click', () => {
-            const url = siteUrlDiv.textContent;
+            const url = viewSiteBtn.href;
             navigator.clipboard.writeText(url).then(() => {
-                copyUrlBtn.textContent = 'Copied!';
+                const originalHTML = copyUrlBtn.innerHTML;
+                copyUrlBtn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
                 setTimeout(() => {
-                    copyUrlBtn.textContent = 'Copy URL';
+                    copyUrlBtn.innerHTML = originalHTML;
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy:', err);
