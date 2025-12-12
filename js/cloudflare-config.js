@@ -142,9 +142,14 @@ const db = {
   // Get all documents in a collection
   async getAll(collection, options = {}) {
     const params = new URLSearchParams();
-    if (options.where) {
-      params.set('where', JSON.stringify(options.where));
+    
+    // Handle siteId - can be in options directly or in options.where
+    if (options.siteId) {
+      params.set('siteId', options.siteId);
+    } else if (options.where && options.where.siteId) {
+      params.set('siteId', options.where.siteId);
     }
+    
     if (options.orderBy) {
       params.set('orderBy', options.orderBy);
     }
