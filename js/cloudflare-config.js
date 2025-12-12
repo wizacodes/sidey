@@ -249,10 +249,39 @@ const urlParams = new URLSearchParams(window.location.search);
 const SITE_NAME = urlParams.get('siteName') || window.SITE_NAME_FROM_WORKER || 'demo';
 window.SITE_NAME = SITE_NAME;
 
+// SideyAPI wrapper for templates (provides consistent interface)
+const SideyAPI = {
+  auth: auth,
+  data: {
+    get: (collection, docId) => db.get(collection, docId),
+    list: (collection, options = {}) => db.getAll(collection, options),
+    create: (collection, data) => db.create(collection, data),
+    update: (collection, docId, data) => db.update(collection, docId, data),
+    delete: (collection, docId) => db.delete(collection, docId),
+  },
+  storage: {
+    upload: (siteName, path, file) => storage.upload(`${siteName}/${path}`, file),
+    list: (siteName, prefix) => storage.list(`${siteName}/${prefix || ''}`),
+    getURL: (path) => storage.getDownloadURL(path),
+    delete: (path) => storage.delete(path),
+  },
+  site: {
+    get: async (siteName) => {
+      try {
+        const profile = await db.get('profiles', siteName);
+        return profile;
+      } catch (e) {
+        return null;
+      }
+    },
+  },
+};
+
 // Expose to window for global access
 window.auth = auth;
 window.db = db;
 window.storage = storage;
+window.SideyAPI = SideyAPI;
 window.CLOUDFLARE_CONFIG = CLOUDFLARE_CONFIG;
 
 // Export for use in other modules
