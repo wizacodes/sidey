@@ -1281,8 +1281,11 @@
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
                 <div class="theme-switch"></div>
             </button>
-            <a href="#" class="btn" onclick="openSignupModal(); return false;">Sign Up</a>
-            <a href="#" class="btn" onclick="openSigninModal(); return false;">Sign In</a>
+            <!-- Auth buttons - shown when logged out -->
+            <a href="#" class="btn auth-btn-logged-out" onclick="openSignupModal(); return false;">Sign Up</a>
+            <a href="#" class="btn auth-btn-logged-out" onclick="openSigninModal(); return false;">Sign In</a>
+            <!-- Dashboard button - shown when logged in -->
+            <a href="dashboard.html" class="btn auth-btn-logged-in" style="display: none;">Dashboard</a>
         </div>
     </nav>
     
@@ -1595,17 +1598,33 @@
             }
         }
         
-        // Listen for auth state changes to show/hide add collection button
+        // Listen for auth state changes to show/hide add collection button and auth buttons
         async function checkAuthForAddBtn() {
-            const user = await window.auth.getCurrentUser();
+            const user = window.auth.getCurrentUser();
             const addBtn = document.getElementById('add-collection-btn');
-            if (user && addBtn) {
-                addBtn.classList.add('visible');
-            } else if (addBtn) {
-                addBtn.classList.remove('visible');
+            const loggedOutBtns = document.querySelectorAll('.auth-btn-logged-out');
+            const loggedInBtns = document.querySelectorAll('.auth-btn-logged-in');
+            
+            if (user) {
+                // User is logged in - show Dashboard button, hide Sign In/Sign Up
+                if (addBtn) addBtn.classList.add('visible');
+                loggedOutBtns.forEach(btn => btn.style.display = 'none');
+                loggedInBtns.forEach(btn => btn.style.display = 'inline-block');
+            } else {
+                // User is logged out - show Sign In/Sign Up, hide Dashboard
+                if (addBtn) addBtn.classList.remove('visible');
+                loggedOutBtns.forEach(btn => btn.style.display = 'inline-block');
+                loggedInBtns.forEach(btn => btn.style.display = 'none');
             }
         }
         checkAuthForAddBtn();
+        
+        // Also check on storage events (for multi-tab support)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'sidey_token' || e.key === 'sidey_user') {
+                checkAuthForAddBtn();
+            }
+        });
         
         // Handle Sign Up
         document.getElementById('signup-form').addEventListener('submit', async (e) => {

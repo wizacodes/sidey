@@ -199,7 +199,7 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">sidey</div>
+        <a href="index.html" class="logo" style="text-decoration: none;">sidey</a>
         <div class="user-menu">
             <span class="user-email" id="user-email">Loading...</span>
             <button class="btn-logout" id="logout-btn">Sign Out</button>
@@ -366,20 +366,24 @@
             // Update site title
             siteTitle.textContent = `${userData.siteName}'s Portfolio`;
 
-            // Update site URL - show subdomain for Pro users, path for free users
+            // Update site URL - use the current root domain dynamically
             const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const isPro = userData.isPro || false;
             
-            let baseUrl, siteUrl;
+            // Get root domain from current location
+            const protocol = window.location.protocol;
+            const rootDomain = window.location.host;
+            
+            let siteUrl;
             if (isLocalhost) {
-                baseUrl = `http://${window.location.host}`;
-                siteUrl = `${baseUrl}/${userData.siteName}`;
+                siteUrl = `${protocol}//${rootDomain}/${userData.siteName}`;
             } else {
-                // Show subdomain for Pro users
+                // Show subdomain for Pro users, path for free users
                 if (isPro) {
-                    siteUrl = `https://${userData.siteName}.sidey.app`;
+                    // Extract base domain for subdomain (e.g., sideyapp.pages.dev -> username.sideyapp.pages.dev)
+                    siteUrl = `${protocol}//${userData.siteName}.${rootDomain}`;
                 } else {
-                    siteUrl = `https://sidey.app/${userData.siteName}`;
+                    siteUrl = `${protocol}//${rootDomain}/${userData.siteName}`;
                 }
             }
             
