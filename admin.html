@@ -669,6 +669,108 @@
       display: block;
     }
     
+    /* Add media button */
+    .add-media-btn {
+      width: 100%;
+      height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-primary);
+      border: 2px dashed var(--border-color);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-muted);
+      gap: 8px;
+    }
+    
+    .add-media-btn:hover {
+      border-color: var(--accent-purple);
+      color: var(--accent-purple);
+      background: rgba(168, 85, 247, 0.05);
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .add-media-btn svg {
+      width: 32px;
+      height: 32px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+    
+    .add-media-btn span {
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .pending-media-item {
+      position: relative;
+      border: 2px solid var(--accent-green);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .pending-media-item::after {
+      content: 'NEW';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--accent-green);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    .pending-media-item img,
+    .pending-media-item video {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    
+    .pending-media-item button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 6px;
+    }
+    
+    .save-media-bar {
+      display: none;
+      padding: 16px 20px;
+      background: rgba(34, 197, 94, 0.1);
+      border-top: 1px solid rgba(34, 197, 94, 0.3);
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .save-media-bar.active {
+      display: flex;
+    }
+    
+    .save-media-bar span {
+      flex: 1;
+      color: var(--accent-green);
+      font-size: 14px;
+    }
+    
+    .save-media-bar button {
+      padding: 10px 20px;
+      font-size: 13px;
+    }
+    
+    .save-media-bar button.save-new-media {
+      background: var(--accent-green);
+    }
+    
     /* Tags */
     .tag-list {
       display: flex;
@@ -1389,7 +1491,17 @@
                   </div>
                 `;
               }).join('')
-            : '<p style="color: #999;">No media</p>';
+            : '';
+          
+          const addMediaBtn = `
+            <div class="collection-media-item">
+              <input type="file" id="add-media-input-${collectionId}" accept="image/*,video/*,.glb" multiple style="display: none;" onchange="handleAddMedia('${collectionId}', this.files)" />
+              <button class="add-media-btn" onclick="document.getElementById('add-media-input-${collectionId}').click()">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Add Media</span>
+              </button>
+            </div>
+          `;
           
           card.innerHTML = `
             <div class="collection-card-header">
@@ -1400,8 +1512,15 @@
               </div>
             </div>
             
-            <div class="collection-card-media">
+            <div class="collection-card-media" id="media-grid-${collectionId}">
               ${mediaHTML}
+              ${addMediaBtn}
+            </div>
+            
+            <div class="save-media-bar" id="save-media-bar-${collectionId}">
+              <span id="pending-count-${collectionId}">0 new files ready to upload</span>
+              <button class="secondary" onclick="cancelPendingMedia('${collectionId}')">Cancel</button>
+              <button class="save-new-media" onclick="savePendingMedia('${collectionId}')">Save New Media</button>
             </div>
             
             <div class="collection-actions">
@@ -1438,6 +1557,129 @@
     function toggleEditCollection(collectionId) {
       const form = document.getElementById(`edit-form-${collectionId}`);
       form.classList.toggle('active');
+    }
+    
+    // Pending media storage
+    const pendingMedia = {};
+    
+    function handleAddMedia(collectionId, files) {
+      if (!files || files.length === 0) return;
+      
+      if (!pendingMedia[collectionId]) {
+        pendingMedia[collectionId] = [];
+      }
+      
+      const mediaGrid = document.getElementById(`media-grid-${collectionId}`);
+      const addBtn = mediaGrid.querySelector('.add-media-btn').parentElement;
+      
+      Array.from(files).forEach((file, index) => {
+        const url = URL.createObjectURL(file);
+        const isVideo = file.type.startsWith('video/');
+        const pendingId = `pending-${Date.now()}-${index}`;
+        
+        pendingMedia[collectionId].push({
+          id: pendingId,
+          file: file,
+          url: url,
+          type: isVideo ? 'video' : (file.name.endsWith('.glb') ? '3d' : 'image')
+        });
+        
+        const item = document.createElement('div');
+        item.className = 'pending-media-item';
+        item.id = pendingId;
+        item.innerHTML = isVideo
+          ? `<video src="${url}" muted></video><button class="danger" onclick="removePendingMedia('${collectionId}', '${pendingId}')">Remove</button>`
+          : `<img src="${url}" alt="New media"><button class="danger" onclick="removePendingMedia('${collectionId}', '${pendingId}')">Remove</button>`;
+        
+        mediaGrid.insertBefore(item, addBtn);
+      });
+      
+      updatePendingCount(collectionId);
+      document.getElementById(`add-media-input-${collectionId}`).value = '';
+    }
+    
+    function removePendingMedia(collectionId, pendingId) {
+      if (pendingMedia[collectionId]) {
+        const item = pendingMedia[collectionId].find(m => m.id === pendingId);
+        if (item) {
+          URL.revokeObjectURL(item.url);
+        }
+        pendingMedia[collectionId] = pendingMedia[collectionId].filter(m => m.id !== pendingId);
+      }
+      
+      const element = document.getElementById(pendingId);
+      if (element) element.remove();
+      
+      updatePendingCount(collectionId);
+    }
+    
+    function cancelPendingMedia(collectionId) {
+      if (pendingMedia[collectionId]) {
+        pendingMedia[collectionId].forEach(m => {
+          URL.revokeObjectURL(m.url);
+          const element = document.getElementById(m.id);
+          if (element) element.remove();
+        });
+        pendingMedia[collectionId] = [];
+      }
+      updatePendingCount(collectionId);
+    }
+    
+    function updatePendingCount(collectionId) {
+      const count = pendingMedia[collectionId] ? pendingMedia[collectionId].length : 0;
+      const bar = document.getElementById(`save-media-bar-${collectionId}`);
+      const countSpan = document.getElementById(`pending-count-${collectionId}`);
+      
+      if (count > 0) {
+        bar.classList.add('active');
+        countSpan.textContent = `${count} new file${count > 1 ? 's' : ''} ready to upload`;
+      } else {
+        bar.classList.remove('active');
+      }
+    }
+    
+    async function savePendingMedia(collectionId) {
+      const pending = pendingMedia[collectionId];
+      if (!pending || pending.length === 0) return;
+      
+      const bar = document.getElementById(`save-media-bar-${collectionId}`);
+      const countSpan = document.getElementById(`pending-count-${collectionId}`);
+      countSpan.textContent = 'Uploading...';
+      
+      try {
+        // Upload all pending files
+        const uploadPromises = pending.map(async (item) => {
+          const result = await storage.upload(`${SITE_ID}/uploads/${Date.now()}-${item.file.name}`, item.file);
+          return {
+            url: result.url,
+            type: item.type,
+            filename: item.file.name
+          };
+        });
+        
+        const uploadedMedia = await Promise.all(uploadPromises);
+        
+        // Get current collection data
+        const collection = await db.get('collections', collectionId);
+        const currentMedia = collection.media || [];
+        
+        // Update collection with new media
+        await db.update('collections', collectionId, {
+          media: [...currentMedia, ...uploadedMedia]
+        });
+        
+        // Clean up
+        pending.forEach(m => URL.revokeObjectURL(m.url));
+        pendingMedia[collectionId] = [];
+        
+        showCollectionsMessage(`Added ${uploadedMedia.length} new media item${uploadedMedia.length > 1 ? 's' : ''}!`, 'success');
+        loadCollections();
+        
+      } catch (error) {
+        console.error('Error saving media:', error);
+        countSpan.textContent = 'Upload failed. Try again.';
+        showCollectionsMessage('Error uploading media: ' + error.message, 'error');
+      }
     }
 
     async function saveCollectionEdit(collectionId) {
