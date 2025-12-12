@@ -654,24 +654,50 @@ async function handleSettings(request, env, method, settingId, url) {
 
 // Users (limited access)
 async function handleUsers(request, env, method, userId, url) {
-  const user = await authenticateRequest(request, env);
-  
-  if (method === 'GET' && userId) {
-    // Can only get own user data unless admin
-    if (!user || (userId !== user.userId && !user.isAdmin)) {
-      return jsonResponse({ error: 'Unauthorized' }, 403);
+  if (method === 'GET') {
+    // Check if looking up by site name (public endpoint for profile pages)
+    const siteName = url.searchParams.get('siteName');
+    
+    if (siteName) {
+      // Public lookup by site name - only return public info (isPro status)
+      const userData = await env.DB.prepare(`
+        SELECT id, site_name, is_pro FROM users WHERE site_name = ?
+      `).bind(siteName).first();
+      
+      if (!userData) {
+        return jsonResponse({ error: 'User not found' }, 404);
+      }
+      
+      // Return limited public info
+      return jsonResponse([{
+        id: userData.id,
+        siteName: userData.site_name,
+        isPro: !!userData.is_pro
+      }]);
     }
+    
+    if (userId) {
+      // Private lookup by ID - requires auth
+      const user = await authenticateRequest(request, env);
+      
+      // Can only get own user data unless admin
+      if (!user || (userId !== user.userId && !user.isAdmin)) {
+        return jsonResponse({ error: 'Unauthorized' }, 403);
+      }
 
-    const userData = await env.DB.prepare(`
-      SELECT id, email, site_name, full_name, is_pro, is_admin, custom_domain, created_at
-      FROM users WHERE id = ?
-    `).bind(userId).first();
+      const userData = await env.DB.prepare(`
+        SELECT id, email, site_name, full_name, is_pro, is_admin, custom_domain, created_at
+        FROM users WHERE id = ?
+      `).bind(userId).first();
 
-    if (!userData) {
-      return jsonResponse({ error: 'User not found' }, 404);
+      if (!userData) {
+        return jsonResponse({ error: 'User not found' }, 404);
+      }
+
+      return jsonResponse(transformUser(userData));
     }
-
-    return jsonResponse(transformUser(userData));
+    
+    return jsonResponse({ error: 'userId or siteName required' }, 400);
   }
 
   if (method === 'PUT' && userId) {

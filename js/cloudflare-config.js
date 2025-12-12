@@ -150,6 +150,11 @@ const db = {
       params.set('siteId', options.where.siteId);
     }
     
+    // Handle siteName for user lookups
+    if (options.siteName) {
+      params.set('siteName', options.siteName);
+    }
+    
     // Handle collectionId for comments
     if (options.collectionId) {
       params.set('collectionId', options.collectionId);
