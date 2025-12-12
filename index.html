@@ -2545,8 +2545,14 @@
                 if (collections && collections.length > 0) {
                     loadingDiv.style.display = 'none';
                     
-                    // Store collections for filtering
-                    allCollections = collections;
+                    // Transform API response to match expected format
+                    // API returns: { media: [{url, type, ...}] }
+                    // Frontend expects: { mediaUrls: [url1, url2, ...], username: siteId }
+                    allCollections = collections.map(c => ({
+                        ...c,
+                        username: c.siteId || c.username,
+                        mediaUrls: (c.media || []).map(m => m.url)
+                    }));
                     
                     // Fetch user data to determine Pro status for each collection
                     const userIds = [...new Set(allCollections.map(c => c.userId).filter(Boolean))];
