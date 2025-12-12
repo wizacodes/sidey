@@ -689,7 +689,7 @@
             // Update site title
             siteTitle.textContent = `${userData.siteName}'s Portfolio`;
 
-            // Update site URL - use the current root domain dynamically
+            // Update site URL - use site.html for proper template routing
             const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const isPro = userData.isPro || false;
             
@@ -697,28 +697,19 @@
             const protocol = window.location.protocol;
             const rootDomain = window.location.host;
             
-            let siteUrl;
-            if (isLocalhost) {
-                siteUrl = `${protocol}//${rootDomain}/${userData.siteName}`;
-            } else {
-                // Show subdomain for Pro users, path for free users
-                if (isPro) {
-                    // Extract base domain for subdomain (e.g., sideyapp.pages.dev -> username.sideyapp.pages.dev)
-                    siteUrl = `${protocol}//${userData.siteName}.${rootDomain}`;
-                } else {
-                    siteUrl = `${protocol}//${rootDomain}/${userData.siteName}`;
-                }
-            }
+            // Always use site.html route which handles template loading
+            let siteUrl = `${protocol}//${rootDomain}/site.html?siteName=${userData.siteName}`;
+            let displayUrl = `${protocol}//${rootDomain}/${userData.siteName}`;
             
             // If user has custom domain, show that instead
             if (userData.customDomain) {
                 siteUrlDiv.innerHTML = `
-                    <div style="margin-bottom: 8px;">${siteUrl}</div>
+                    <div style="margin-bottom: 8px;">${displayUrl}</div>
                     <div style="color: var(--accent);">🌐 ${userData.customDomain}</div>
                 `;
                 viewSiteBtn.href = `https://${userData.customDomain}`;
             } else {
-                siteUrlDiv.textContent = siteUrl;
+                siteUrlDiv.textContent = displayUrl;
                 viewSiteBtn.href = siteUrl;
             }
 
