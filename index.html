@@ -2169,16 +2169,15 @@
             // Load comments
             loadComments(collection.id);
             
-            // Check if user is signed in for comments
-            window.auth.getCurrentUser().then((user) => {
-                if (user) {
-                    document.getElementById('comment-form-container').style.display = 'block';
-                    document.getElementById('comments-auth-message').style.display = 'none';
-                } else {
-                    document.getElementById('comment-form-container').style.display = 'none';
-                    document.getElementById('comments-auth-message').style.display = 'block';
-                }
-            });
+            // Check if user is signed in for comments (getCurrentUser is synchronous)
+            const user = window.auth.getCurrentUser();
+            if (user) {
+                document.getElementById('comment-form-container').style.display = 'block';
+                document.getElementById('comments-auth-message').style.display = 'none';
+            } else {
+                document.getElementById('comment-form-container').style.display = 'none';
+                document.getElementById('comments-auth-message').style.display = 'block';
+            }
             
             // Scroll to top
             window.scrollTo(0, 0);
@@ -2512,7 +2511,7 @@
                 return;
             }
             
-            const user = await window.auth.getCurrentUser();
+            const user = window.auth.getCurrentUser();
             if (!user) {
                 alert('Please sign in to comment.');
                 return;

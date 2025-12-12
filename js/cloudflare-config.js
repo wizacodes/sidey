@@ -150,6 +150,11 @@ const db = {
       params.set('siteId', options.where.siteId);
     }
     
+    // Handle collectionId for comments
+    if (options.collectionId) {
+      params.set('collectionId', options.collectionId);
+    }
+    
     if (options.orderBy) {
       params.set('orderBy', options.orderBy);
     }
